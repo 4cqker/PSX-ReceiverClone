@@ -60,13 +60,16 @@ MonoBehaviour:
   enemyLayer: Enemy
   objectLayer: Default
   magazineObject: {fileID: 7442132042390614023}
+  emptyMagazineObject: {fileID: 3414205925336015572, guid: 05e9610a32c475f458c73c42fd0f0228, type: 3}
   bulletsLeft: 0
   startingBulletCount: 8
   dampTime: 0.2
   impactForce: 2
   wielder: {fileID: 0}
-  dropRotationForce: 80
-  throwForce: 50
+  dropRotationForce: 160
+  dropLiftForce: 4
+  dropSideForce: 5
+  throwForce: 160
 --- !u!65 &5965545772617490330
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -107,7 +110,7 @@ GameObject:
   - component: {fileID: 5700042967150222713}
   - component: {fileID: 2999913462477276813}
   - component: {fileID: 4947413135444880369}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,8 +125,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1336393418518503360}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.257}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.5243}
   m_Children: []
   m_Father: {fileID: 2743041017738630961}
   m_RootOrder: 0
@@ -188,7 +191,7 @@ GameObject:
   - component: {fileID: 8153479107134849295}
   - component: {fileID: 3165527954347186013}
   - component: {fileID: 6583902457501648379}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,8 +206,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5043130938773924357}
   m_LocalRotation: {x: 0.13279226, y: -0, z: -0, w: 0.9911439}
-  m_LocalPosition: {x: 0, y: -0.253, z: -0.466}
-  m_LocalScale: {x: 0.052045, y: 0.53734374, z: 0.14680497}
+  m_LocalPosition: {x: 0, y: -0.153, z: -0.439}
+  m_LocalScale: {x: 0.08061264, y: 0.2800098, z: 0.08911796}
   m_Children: []
   m_Father: {fileID: 2743041017738630961}
   m_RootOrder: 1
@@ -269,7 +272,7 @@ GameObject:
   - component: {fileID: 7891236456416766895}
   - component: {fileID: 456747469868074786}
   - component: {fileID: 1302332601686477159}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: Magazine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -285,7 +288,7 @@ Transform:
   m_GameObject: {fileID: 7442132042390614023}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.208, y: 0.004, z: -0.176}
-  m_LocalScale: {x: 0.42793912, y: 0.06354302, z: 0.15679613}
+  m_LocalScale: {x: 0.34156388, y: 0.038772684, z: 0.07487049}
   m_Children: []
   m_Father: {fileID: 2743041017738630961}
   m_RootOrder: 2

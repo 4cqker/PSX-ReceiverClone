@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -42,33 +43,35 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(reloadWeaponKey) && currentWeapon != null) weaponScript.ReloadWeapon();
 
-        if (Input.GetKeyDown(throwWeaponKey) && currentWeapon != null) weaponScript.ThrowWeapon();
+        if (Input.GetKeyDown(throwWeaponKey)) ThrowWeapon();
 
     }
 
     private void PickupWeapon()
     {
 
-        if (currentWeapon != null) DropWeapon();
-
         if (Physics.SphereCast(theCamera.position, pickupRadius, theCamera.forward, out RaycastHit hitInfo, interactDistance, weaponLayer))
         {
-            if (hitInfo.transform.tag == "Weapon")
+            if (hitInfo.transform.tag == "Weapon" && currentWeapon != hitInfo.transform.gameObject)
             {
-                currentWeapon = hitInfo.collider.gameObject;
-                currentWeapon.GetComponent<Rigidbody>().isKinematic = true;
-                currentWeapon.GetComponent<BoxCollider>().enabled = false;
-                currentWeapon.transform.parent = theCamera;
-                currentWeapon.transform.position = gunHoldPosition.position;
-                currentWeapon.transform.rotation = gunHoldPosition.rotation;
+                if (hitInfo.collider.gameObject.GetComponent<Gun>().wielder == null)
+                {
+                    if (currentWeapon != null) DropWeapon();
 
-                weaponScript = currentWeapon.GetComponent<Gun>();
-                weaponScript.wielder = this;
+                    Debug.Log("Picking up new weapon, transform name: " + hitInfo.transform.name);
+                    currentWeapon = hitInfo.transform.gameObject;
+                    currentWeapon.GetComponent<Rigidbody>().isKinematic = true;
+                    currentWeapon.GetComponent<BoxCollider>().enabled = false;
+                    currentWeapon.transform.parent = theCamera;
+                    currentWeapon.transform.position = gunHoldPosition.position;
+                    currentWeapon.transform.rotation = gunHoldPosition.rotation;
+
+                    weaponScript = currentWeapon.GetComponent<Gun>();
+                    weaponScript.wielder = this;
+                }
+                    
             }
         }
-        //Sphere cast in front of player
-        //If hit info finds anything on weaponLayer,
-        //Pick it up, attach it to the player.
     }
 
     private void DropWeapon()
@@ -78,8 +81,22 @@ public class Player : MonoBehaviour
         {
             Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
             currentWeaponScript.DropGun();
+            currentWeapon = null;
         }
         else Debug.Log("You aren't holding a weapon to drop.");
+
+    }
+
+    private void ThrowWeapon()
+    {
+
+        if (currentWeapon != null)
+        {
+            Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
+            currentWeaponScript.ThrowGun();
+            currentWeapon = null;
+        }
+        else Debug.Log("You threw your weapon.");
 
     }
 
@@ -87,12 +104,15 @@ public class Player : MonoBehaviour
     {
         if (Physics.SphereCast(theCamera.position, pickupRadius, theCamera.forward, out RaycastHit hitInfo, interactDistance, magazineLayer | weaponLayer))
         {
-            if (hitInfo.transform.tag == "Magazine") text1.SetActive(true); //Can pick up Mag
-            if (hitInfo.transform.tag == "Weapon" && currentWeapon == null)
+            if (hitInfo.transform.tag == "Magazine" && currentWeapon != null) text1.SetActive(true); //Can pick up new Mag
+            if (hitInfo.transform.tag == "Weapon")
             {
-                text2.SetActive(true); //Can pick up Gun
+                if (hitInfo.collider.gameObject.GetComponent<Gun>().wielder == null)
+                {
+                    text2.GetComponent<Text>().text = $"Pick up {hitInfo.transform.name} ({pickupWeaponKey})";
+                    text2.SetActive(true); //Can pick up Gun
+                }
             }
-
         }
         else
         {
