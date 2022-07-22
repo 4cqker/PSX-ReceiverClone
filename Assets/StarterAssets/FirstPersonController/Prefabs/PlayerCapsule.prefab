@@ -435,5 +435,9 @@ MonoBehaviour:
   text1: {fileID: 0}
   text2: {fileID: 0}
   currentWeapon: {fileID: 0}
-  startingWeapon: {fileID: 0}
+  weaponScript: {fileID: 0}
   pickupWeaponKey: 101
+  dropWeaponKey: 103
+  throwWeaponKey: 102
+  reloadWeaponKey: 114
+  fireKey: 323
