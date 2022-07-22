@@ -137,7 +137,11 @@ public class Player : MonoBehaviour
     {
         if (Physics.SphereCast(theCamera.position, pickupRadius, theCamera.forward, out RaycastHit hitInfo, interactDistance, magazineLayer | weaponLayer))
         {
-            if (hitInfo.transform.tag == "Magazine" && currentWeapon != null) text1.SetActive(true); //Can pick up new Mag
+            if (hitInfo.transform.tag == "Magazine" && currentWeapon != null)
+            {
+                text1.SetActive(true); //Can pick up new Mag
+            }
+
             if (hitInfo.transform.tag == "Weapon")
             {
                 if (hitInfo.collider.gameObject.GetComponent<Gun>().wielder == null)
