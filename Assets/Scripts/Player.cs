@@ -8,6 +8,8 @@ public class Player : MonoBehaviour
 
     public Transform theCamera; //the camera point the player's head is using
     [SerializeField] private Transform gunHoldPosition; //the position in space attached to the camera that weapons are held at
+    [SerializeField] private Transform gunAimPosition; //the position in space attached to the camera that weapons are moved to for aiming
+    public float aimTime = 0.02f; //The time it takes for the gun to get to your eye for ADS, roughly.
     public float pickupRadius; //The radius of the sphere cast check
     public float interactDistance = 2; //The length of the raycast for interactions
     [SerializeField] private LayerMask magazineLayer; //Magazines out in the world should be assigned to this same layer
@@ -25,6 +27,7 @@ public class Player : MonoBehaviour
     [SerializeField] private KeyCode throwWeaponKey = KeyCode.F;
     [SerializeField] private KeyCode reloadWeaponKey = KeyCode.R;
     [SerializeField] private KeyCode fireKey = KeyCode.Mouse0;
+    [SerializeField] private KeyCode aimSightKey = KeyCode.Mouse1;
 
     private void Start()
     {
@@ -45,7 +48,25 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(throwWeaponKey)) ThrowWeapon();
 
+        if (Input.GetKeyDown(aimSightKey)) StartCoroutine(AimWeapon());
+
     }
+
+    private IEnumerator AimWeapon()
+    {
+        Rigidbody aimingRB = currentWeapon.GetComponent<Rigidbody>();
+        while (Input.GetKey(aimSightKey))
+        {
+            Vector3 currentVelocity = Vector3.zero;
+            currentWeapon.transform.position = Vector3.SmoothDamp(gunHoldPosition.position, gunAimPosition.position, ref currentVelocity, aimTime);
+            yield return null;
+        }
+        currentWeapon.transform.position = gunHoldPosition.position;
+        
+        yield break;
+    }
+
+
 
     private void PickupWeapon()
     {
