@@ -453,8 +453,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f3d76827b679e4ca646a33a5ea68d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gunHoldPosition: {fileID: 1841751977}
-  gunAimPosition: {fileID: 1480579735}
+  gunHoldTransform: {fileID: 1841751977}
+  gunAimTransform: {fileID: 1480579735}
   aimTime: 0.025
   pickupRadius: 1
   interactDistance: 2
