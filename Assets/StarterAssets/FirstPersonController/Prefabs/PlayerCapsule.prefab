@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 5393215578589016655}
   - component: {fileID: 5393215578589016640}
   - component: {fileID: 1937008050}
-  m_Layer: 8
+  m_Layer: 11
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -221,7 +221,7 @@ GameObject:
   - component: {fileID: 8616685848737228376}
   - component: {fileID: 826328991120792952}
   - component: {fileID: 5246024566931892447}
-  m_Layer: 8
+  m_Layer: 11
   m_Name: PlayerCapsule
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -453,10 +453,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1f3d76827b679e4ca646a33a5ea68d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  theCamera: {fileID: 4135013735270702856}
   gunHoldPosition: {fileID: 1841751977}
   gunAimPosition: {fileID: 1480579735}
-  aimTime: 0
+  aimTime: 0.025
   pickupRadius: 1
   interactDistance: 2
   magazineLayer:
@@ -468,7 +467,6 @@ MonoBehaviour:
   text1: {fileID: 0}
   text2: {fileID: 0}
   currentWeapon: {fileID: 0}
-  weaponScript: {fileID: 0}
   pickupWeaponKey: 101
   dropWeaponKey: 103
   throwWeaponKey: 102

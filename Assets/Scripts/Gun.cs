@@ -149,10 +149,11 @@ public class Gun : MonoBehaviour
         yield break;
     }*/
 
+    //Todo This functionality relates to the player, not to the weapon. Better off moving the spherecast part to the player and keeping the updates to the gun here.
     public void ReloadWeapon() 
     {
         Debug.Log("Trying to Reload...");
-        if (Physics.SphereCast(wielder.theCamera.position, wielder.pickupRadius, bulletOrigin.forward, out RaycastHit hitInfo, wielder.interactDistance, myMagsLayer))
+        if (Physics.SphereCast(wielder.Cam.position, wielder.pickupRadius, bulletOrigin.forward, out RaycastHit hitInfo, wielder.interactDistance, myMagsLayer))
         {
             if (bulletsLeft > 0)
             {

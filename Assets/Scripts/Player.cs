@@ -6,21 +6,20 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
 
-    public Transform theCamera; //the camera point the player's head is using
-    [SerializeField] private Transform gunHoldPosition; //the position in space attached to the camera that weapons are held at
-    [SerializeField] private Transform gunAimPosition; //the position in space attached to the camera that weapons are moved to for aiming
+    //public Transform mainCamera; //the camera point the player's head is using
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are held at")] private Transform gunHoldPosition;
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are moved to for aiming")] private Transform gunAimPosition;
     public float aimTime = 4f; //The time it takes for the gun to get to your eye for ADS, roughly.
     private bool aiming = false; //Whether the player is aiming or not. 
     public float pickupRadius; //The radius of the sphere cast check
     public float interactDistance = 2; //The length of the raycast for interactions
-    [SerializeField] private LayerMask magazineLayer; //Magazines out in the world should be assigned to this same layer
-    [SerializeField] private LayerMask weaponLayer; //Weapons out in the world should be assigned to this same layer
-    [SerializeField] private GameObject text1; //The text that says "Pick up Magazine" When possible
-    [SerializeField] private GameObject text2; //The text that says "Pick up Gun" When possible
+    [SerializeField, Tooltip("Magazines out in the world should be assigned to this same layer")] private LayerMask magazineLayer;
+    [SerializeField, Tooltip("Weapons out in the world should be assigned to this same layer")] private LayerMask weaponLayer;
+    [SerializeField, Tooltip("The text that says 'Pick up Magazine' When possible")] private GameObject text1;
+    [SerializeField, Tooltip("The text that says 'Pick up Gun' When possible")] private GameObject text2;
 
-    [SerializeField] public GameObject currentWeapon; //The gun in hand to be used and fired
-    //[SerializeField] public GameObject startingWeapon; //The gun the player starts with
-    [SerializeField] private Gun weaponScript;
+    [SerializeField, Tooltip("The gun in hand to be used and fired")] public Gun currentWeapon;
+    //[SerializeField, Tooltip("The gun the player starts with")] public GameObject startingWeapon;
 
     [Header("Keybinds")]
     [SerializeField] private KeyCode pickupWeaponKey = KeyCode.E;
@@ -30,10 +29,7 @@ public class Player : MonoBehaviour
     [SerializeField] private KeyCode fireKey = KeyCode.Mouse0;
     [SerializeField] private KeyCode aimSightKey = KeyCode.Mouse1;
 
-    private void Start()
-    {
-        weaponScript = currentWeapon.GetComponent<Gun>();
-    }
+    public Transform Cam => Camera.main.transform; //Getter for the main camera transform
 
     private void Update()
     {
@@ -41,16 +37,18 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(pickupWeaponKey)) PickupWeapon();
 
-        if (Input.GetKeyDown(fireKey) && currentWeapon != null) weaponScript.GunShoot();
+        if (currentWeapon is Gun)
+        {
+            if (Input.GetKeyDown(fireKey)) currentWeapon.GunShoot();
 
-        if (Input.GetKeyDown(dropWeaponKey)) DropWeapon();
+            if (Input.GetKeyDown(dropWeaponKey)) DropWeapon();
 
-        if (Input.GetKeyDown(reloadWeaponKey) && currentWeapon != null) weaponScript.ReloadWeapon();
+            if (Input.GetKeyDown(reloadWeaponKey)) currentWeapon.ReloadWeapon();
 
-        if (Input.GetKeyDown(throwWeaponKey)) ThrowWeapon();
+            if (Input.GetKeyDown(throwWeaponKey)) ThrowWeapon();
 
-        if (Input.GetKeyDown(aimSightKey)) StartCoroutine(AimWeapon());
-
+            if (Input.GetKeyDown(aimSightKey)) StartCoroutine(AimWeapon());
+        }
     }
 
     private IEnumerator AimWeapon()
@@ -83,7 +81,7 @@ public class Player : MonoBehaviour
     private void PickupWeapon()
     {
 
-        if (Physics.SphereCast(theCamera.position, pickupRadius, theCamera.forward, out RaycastHit hitInfo, interactDistance, weaponLayer))
+        if (Physics.SphereCast(Cam.position, pickupRadius, Cam.forward, out RaycastHit hitInfo, interactDistance, weaponLayer))
         {
             if (hitInfo.transform.tag == "Weapon" && currentWeapon != hitInfo.transform.gameObject)
             {
@@ -92,15 +90,14 @@ public class Player : MonoBehaviour
                     if (currentWeapon != null) DropWeapon();
 
                     Debug.Log("Picking up new weapon, transform name: " + hitInfo.transform.name);
-                    currentWeapon = hitInfo.transform.gameObject;
+                    currentWeapon = hitInfo.transform.GetComponent<Gun>();
                     currentWeapon.GetComponent<Rigidbody>().isKinematic = true;
                     currentWeapon.GetComponent<BoxCollider>().enabled = false;
-                    currentWeapon.transform.parent = theCamera;
+                    currentWeapon.transform.parent = Cam;
                     currentWeapon.transform.position = gunHoldPosition.position;
                     currentWeapon.transform.rotation = gunHoldPosition.rotation;
 
-                    weaponScript = currentWeapon.GetComponent<Gun>();
-                    weaponScript.wielder = this;
+                    currentWeapon.wielder = this;
                 }
                     
             }
@@ -109,33 +106,21 @@ public class Player : MonoBehaviour
 
     private void DropWeapon()
     {
-
-        if (currentWeapon != null)
-        {
-            Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
-            currentWeaponScript.DropGun();
-            currentWeapon = null;
-        }
-        else Debug.Log("You aren't holding a weapon to drop.");
-
+        Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
+        currentWeaponScript.DropGun();
+        currentWeapon = null;
     }
 
     private void ThrowWeapon()
     {
-
-        if (currentWeapon != null)
-        {
-            Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
-            currentWeaponScript.ThrowGun();
-            currentWeapon = null;
-        }
-        else Debug.Log("You threw your weapon.");
-
+        Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
+        currentWeaponScript.ThrowGun();
+        currentWeapon = null;
     }
 
     private void SphereCheck()
     {
-        if (Physics.SphereCast(theCamera.position, pickupRadius, theCamera.forward, out RaycastHit hitInfo, interactDistance, magazineLayer | weaponLayer))
+        if (Physics.SphereCast(Cam.position, pickupRadius, Cam.forward, out RaycastHit hitInfo, interactDistance, magazineLayer | weaponLayer))
         {
             if (hitInfo.transform.tag == "Magazine" && currentWeapon != null)
             {
