@@ -2162,6 +2162,10 @@ PrefabInstance:
       propertyPath: text2
       value: 
       objectReference: {fileID: 849774379}
+    - target: {fileID: 5246024566931892447, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
+      propertyPath: aimTime
+      value: 0.025
+      objectReference: {fileID: 0}
     - target: {fileID: 5393215578589016642, guid: c5efc39a8aaf6e64ea40e9ad573e9b47, type: 3}
       propertyPath: m_Layer
       value: 11
