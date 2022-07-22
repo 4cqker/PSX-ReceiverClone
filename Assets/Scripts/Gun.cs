@@ -9,62 +9,53 @@ public class Gun : MonoBehaviour
     [SerializeField] private Transform bulletOrigin;
     [SerializeField] private GameObject bulletHole;
     [SerializeField] private LayerMask hitMask;
+    [SerializeField] private LayerMask myMagsLayer;
     [SerializeField] private string enemyLayer;
     [SerializeField] private string objectLayer;
     [SerializeField] private GameObject magazineObject;
     [SerializeField] private int bulletsLeft;
     [SerializeField] private int startingBulletCount;
-    [SerializeField] private GameObject gunOriginPoint;
     [SerializeField] private float dampTime = 0.2f;
     [SerializeField] private float impactForce = 2f;
 
+    public Player wielder; //Who is holding this weapon
+
     [Header("Reloading")]
-    [SerializeField] private KeyCode reloadButton = KeyCode.R;
-    [SerializeField] private LayerMask magazineLayer;
-    [SerializeField] private GameObject text;
-    [SerializeField] private float pickupRadius;
-    [SerializeField] private float interactDistance = 2;
     private Vector3 randomVector3;
 
     [Header("Dropping and Throwing")]
-    [SerializeField] private KeyCode dropGunButton = KeyCode.G;
     [SerializeField] private float dropRotationForce = 50f;
-    [SerializeField] private KeyCode throwGunButton = KeyCode.F;
     [SerializeField] private float throwForce = 1f;
-    [SerializeField] private KeyCode pickupGunButton = KeyCode.E;
 
     private void Start() 
     {
         if (!bulletOrigin) bulletOrigin = transform;
         bulletsLeft = startingBulletCount;
         if (bulletsLeft > 0) magazineObject.SetActive(true);
-        randomVector3 = new Vector3(Random.Range(-2, 2), Random.Range(-2, 2), Random.Range(-2, 2));
+        if (!transform.parent) 
+        {
+            gameObject.GetComponent<BoxCollider>().enabled = true;
+            transform.GetComponent<Rigidbody>().isKinematic = false;
+        }
     }
 
     void Update() //
     {
-
-        if (bulletsLeft == 0) magazineObject.SetActive(false);
-
-        if (Input.GetKeyDown(fireKey) && bulletsLeft > 0) GunShoot();
-
-        if (Input.GetKeyDown(reloadButton)) Reload();
-
-        if (Input.GetKeyDown(dropGunButton)) DropGun();
-
-        if (Input.GetKeyDown(throwGunButton)) ThrowGun();
-
-        if (Input.GetKeyDown(pickupGunButton)) PickupGun();
-
-        //Always checking so I can notify the player with text
-        SphereCheck();
-
+        //if (Input.GetKeyDown(reloadButton)) Reload();
     }
 
     
 
-    private void GunShoot() //
+    public void GunShoot() 
     {
+
+        if (bulletsLeft == 0)
+        {
+            Debug.Log("Click!");
+            magazineObject.SetActive(false);
+            return;
+        }
+
         Debug.Log("Bang!");
         bulletsLeft--;
 
@@ -76,8 +67,9 @@ public class Gun : MonoBehaviour
             if (hitInfo.transform)
             {
 
-                hitInfo.collider.gameObject.GetComponent<Rigidbody>().AddForce(bulletOrigin.forward.normalized * impactForce, ForceMode.Impulse);
-
+                if (hitInfo.collider.gameObject.GetComponent<Rigidbody>()) 
+                    hitInfo.collider.gameObject.GetComponent<Rigidbody>().AddForce(bulletOrigin.forward.normalized * impactForce, ForceMode.Impulse);
+                    
                 if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer(enemyLayer))
                 {
                     Destroy(hitInfo.collider.gameObject);
@@ -92,11 +84,10 @@ public class Gun : MonoBehaviour
                     //Well I'll be damned.
                 }
             }
-            
         }
     }
 
-    private void DropGun() //
+    public void DropGun()
     {
         transform.parent = null;
         Rigidbody rb = gameObject.GetComponent<Rigidbody>();
@@ -106,7 +97,7 @@ public class Gun : MonoBehaviour
         rb.AddTorque(randomVector3 * dropRotationForce);
     }
 
-    private void ThrowGun() //
+    public void ThrowWeapon()
     {
         Vector3 trajectoryVector = bulletOrigin.forward + Vector3.up * 0.2f;
         transform.parent = null;
@@ -118,7 +109,7 @@ public class Gun : MonoBehaviour
         rb.AddForce(trajectoryVector * throwForce, ForceMode.Impulse);
     }
 
-    private void PickupGun() //
+    /*private void PickupGun() //
     {
         Rigidbody rb = gameObject.GetComponent<Rigidbody>();
         StartCoroutine(GunDamp(rb));
@@ -151,17 +142,16 @@ public class Gun : MonoBehaviour
         transform.parent = bulletOrigin;
         Debug.Log("Finishing GunDamp Loop");
         yield break;
-    }
+    }*/
 
-    private void Reload() 
+    public void ReloadWeapon() 
     {
         Debug.Log("Trying to Reload...");
-        if (Physics.SphereCast(bulletOrigin.position, pickupRadius, bulletOrigin.forward, out RaycastHit hitInfo, interactDistance, magazineLayer))
+        if (Physics.SphereCast(wielder.theCamera.position, wielder.pickupRadius, bulletOrigin.forward, out RaycastHit hitInfo, wielder.interactDistance, myMagsLayer))
         {
             if (bulletsLeft > 0)
             {
                 Debug.Log("Discarding previous Magazine...");
-                //debug log "dropping previous magazine"
                 //spawn a game object that is the previous mag, it has the amount of bullets you had left
             }
             Debug.Log("Found a Magazine, " + hitInfo.collider.name);
@@ -171,18 +161,7 @@ public class Gun : MonoBehaviour
             bulletsLeft = newMagazine.ammoCount;
         }
 
-        //If more than one, pick one at random 
-        //Disable it DONE
-        //Enable the "Magazine" on the gun DONE
-        //Set the bullets left in your gun to the amount from the magazine DONE
+        //If more than one, pick one at random?
     }
 
-    private void SphereCheck() //
-    {
-        if (Physics.SphereCast(bulletOrigin.position, pickupRadius, bulletOrigin.forward, out RaycastHit hitInfo, interactDistance, magazineLayer))
-        {
-            text.SetActive(true);
-        }
-        else text.SetActive(false);
-    }
 }
