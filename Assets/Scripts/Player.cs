@@ -7,8 +7,8 @@ public class Player : MonoBehaviour
 {
 
     //public Transform mainCamera; //the camera point the player's head is using
-    [SerializeField, Tooltip("The position in space attached to the camera that weapons are held at")] private Transform gunHoldPosition;
-    [SerializeField, Tooltip("The position in space attached to the camera that weapons are moved to for aiming")] private Transform gunAimPosition;
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are held at")] private Transform gunHoldTransform;
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are moved to for aiming")] private Transform gunAimTransform;
     public float aimTime = 4f; //The time it takes for the gun to get to your eye for ADS, roughly.
     private bool aiming = false; //Whether the player is aiming or not. 
     public float pickupRadius; //The radius of the sphere cast check
@@ -58,17 +58,17 @@ public class Player : MonoBehaviour
         AimingAgain:
         while (Input.GetKey(aimSightKey))
         {
-            if (currentWeapon.transform.position != gunAimPosition.position)
+            if (currentWeapon.transform.position != gunAimTransform.position)
             {
                 currentWeapon.transform.position = Vector3.SmoothDamp(currentWeapon.transform.position, 
-                    gunAimPosition.position, ref currentVelocity, aimTime);
+                    gunAimTransform.position, ref currentVelocity, aimTime);
             }
             yield return null;
         }
-        while (currentWeapon.transform.position != gunHoldPosition.position)
+        while (currentWeapon.transform.position != gunHoldTransform.position)
         {
             currentWeapon.transform.position = Vector3.SmoothDamp(currentWeapon.transform.position,
-                    gunHoldPosition.position, ref currentVelocity, aimTime);
+                    gunHoldTransform.position, ref currentVelocity, aimTime);
             if (Input.GetKey(aimSightKey)) goto AimingAgain; //label shortcut if you start aiming again while lowering the weapon
             yield return null;
         }
@@ -94,8 +94,8 @@ public class Player : MonoBehaviour
                     currentWeapon.GetComponent<Rigidbody>().isKinematic = true;
                     currentWeapon.GetComponent<BoxCollider>().enabled = false;
                     currentWeapon.transform.parent = Cam;
-                    currentWeapon.transform.position = gunHoldPosition.position;
-                    currentWeapon.transform.rotation = gunHoldPosition.rotation;
+                    currentWeapon.transform.position = gunHoldTransform.position;
+                    currentWeapon.transform.rotation = gunHoldTransform.rotation;
 
                     currentWeapon.wielder = this;
                 }
