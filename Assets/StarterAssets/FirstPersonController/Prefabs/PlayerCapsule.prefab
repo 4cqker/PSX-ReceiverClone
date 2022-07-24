@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 8616685848737228376}
   - component: {fileID: 826328991120792952}
   - component: {fileID: 5246024566931892447}
+  - component: {fileID: 8119083127701979880}
   m_Layer: 11
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -261,7 +262,7 @@ CharacterController:
   m_StepOffset: 0.25
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 1.1, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &8616685848737228371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -473,3 +474,17 @@ MonoBehaviour:
   reloadWeaponKey: 114
   fireKey: 323
   aimSightKey: 324
+--- !u!136 &8119083127701979880
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
