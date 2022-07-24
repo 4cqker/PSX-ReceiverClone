@@ -56,7 +56,7 @@ public class Player : MonoBehaviour
         aiming = true;
         Vector3 currentVelocity = Vector3.zero;
         AimingAgain:
-        while (Input.GetKey(aimSightKey))
+        while (currentWeapon && Input.GetKey(aimSightKey))
         {
             if (currentWeapon.transform.position != gunAimTransform.position)
             {
@@ -65,7 +65,7 @@ public class Player : MonoBehaviour
             }
             yield return null;
         }
-        while (currentWeapon.transform.position != gunHoldTransform.position)
+        while (currentWeapon && currentWeapon.transform.position != gunHoldTransform.position)
         {
             currentWeapon.transform.position = Vector3.SmoothDamp(currentWeapon.transform.position,
                     gunHoldTransform.position, ref currentVelocity, aimTime);
