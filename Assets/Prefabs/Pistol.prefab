@@ -71,6 +71,9 @@ MonoBehaviour:
   dropLiftForce: 0.54
   dropSideForce: 0.96
   throwForce: 21
+  throwMagForce: 16
+  throwMagRotForce: 12
+  throwMagTransitionSpeed: 0.5
 --- !u!65 &5965545772617490330
 BoxCollider:
   m_ObjectHideFlags: 0

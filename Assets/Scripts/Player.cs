@@ -7,10 +7,14 @@ public class Player : MonoBehaviour
 {
 
     //public Transform mainCamera; //the camera point the player's head is using
-    [SerializeField, Tooltip("The position in space attached to the camera that weapons are held at")] private Transform gunHoldTransform;
-    [SerializeField, Tooltip("The position in space attached to the camera that weapons are moved to for aiming")] private Transform gunAimTransform;
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are held at")] 
+    private Transform gunHoldTransform;
+    [SerializeField, Tooltip("The position in space attached to the camera that weapons are moved to for aiming")] 
+    private Transform gunAimTransform;
+    [SerializeField, Tooltip("The position in space attached to the camera that magazines move to just before throwing")]
+    public Transform magThrowPosition;
+
     public float aimTime = 4f; //The time it takes for the gun to get to your eye for ADS, roughly.
-    private bool aiming = false; //Whether the player is aiming or not. 
     public float pickupRadius; //The radius of the sphere cast check
     public float interactDistance = 2; //The length of the raycast for interactions
     [SerializeField, Tooltip("Magazines out in the world should be assigned to this same layer")] private LayerMask magazineLayer;
@@ -26,6 +30,7 @@ public class Player : MonoBehaviour
     [SerializeField] private KeyCode dropWeaponKey = KeyCode.G;
     [SerializeField] private KeyCode throwWeaponKey = KeyCode.F;
     [SerializeField] private KeyCode reloadWeaponKey = KeyCode.R;
+    [SerializeField] private KeyCode throwMagazineKey = KeyCode.T;
     [SerializeField] private KeyCode fireKey = KeyCode.Mouse0;
     [SerializeField] private KeyCode aimSightKey = KeyCode.Mouse1;
 
@@ -47,13 +52,14 @@ public class Player : MonoBehaviour
 
             if (Input.GetKeyDown(throwWeaponKey)) ThrowWeapon();
 
+            if (Input.GetKeyDown(throwMagazineKey)) ThrowMagazine();
+
             if (Input.GetKeyDown(aimSightKey)) StartCoroutine(AimWeapon());
         }
     }
 
     private IEnumerator AimWeapon()
     {
-        aiming = true;
         Vector3 currentVelocity = Vector3.zero;
         AimingAgain:
         while (currentWeapon && Input.GetKey(aimSightKey))
@@ -72,7 +78,6 @@ public class Player : MonoBehaviour
             if (Input.GetKey(aimSightKey)) goto AimingAgain; //label shortcut if you start aiming again while lowering the weapon
             yield return null;
         }
-        aiming = false;
         yield break;
     }
 
@@ -92,7 +97,14 @@ public class Player : MonoBehaviour
                     Debug.Log("Picking up new weapon, transform name: " + hitInfo.transform.name);
                     currentWeapon = hitInfo.transform.GetComponent<Gun>();
                     currentWeapon.GetComponent<Rigidbody>().isKinematic = true;
-                    currentWeapon.GetComponent<BoxCollider>().enabled = false;
+                    //currentWeapon.GetComponent<BoxCollider>().enabled = false;
+
+                    BoxCollider[] boxCollidersOnGun = currentWeapon.GetComponentsInChildren<BoxCollider>();
+                    foreach (BoxCollider collider in boxCollidersOnGun)
+                    {
+                        collider.enabled = false;
+                    }
+
                     currentWeapon.transform.parent = Cam;
                     currentWeapon.transform.position = gunHoldTransform.position;
                     currentWeapon.transform.rotation = gunHoldTransform.rotation;
@@ -116,6 +128,13 @@ public class Player : MonoBehaviour
         Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
         currentWeaponScript.ThrowGun();
         currentWeapon = null;
+    }
+
+    private void ThrowMagazine()
+    {
+        Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
+        if (!currentWeaponScript.magazineObject.activeSelf) return;
+        currentWeaponScript.ThrowMagazine();
     }
 
     private void SphereCheck()

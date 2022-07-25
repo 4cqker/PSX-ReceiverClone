@@ -5,8 +5,10 @@ using UnityEngine;
 public class Magazine : MonoBehaviour
 {
     public int ammoCount;
+    public bool isEmpty = false;
     void Start()
     {
-        ammoCount = Random.Range(6, 10);
+        if (!isEmpty) ammoCount = Random.Range(6, 10);
     }
+
 }

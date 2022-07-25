@@ -12,9 +12,11 @@ public class Gun : MonoBehaviour
     [SerializeField] private LayerMask myMagsLayer;
     [SerializeField] private string enemyLayer;
     [SerializeField] private string objectLayer;
-    [SerializeField] private GameObject magazineObject;
+    public GameObject magazineObject;
     [SerializeField] private GameObject emptyMagazineObject;
-    [SerializeField] private int bulletsLeft;
+    public int bulletsLeft;
+    [SerializeField] private bool isAutomatic;
+    [SerializeField] private float refireRate = 1f;
     [SerializeField] private int startingBulletCount;
     [SerializeField] private float dampTime = 0.2f;
     [SerializeField] private float impactForce = 2f;
@@ -29,10 +31,12 @@ public class Gun : MonoBehaviour
     [SerializeField] private float dropLiftForce = 3f;
     [SerializeField] private float dropSideForce = 5f;
     [SerializeField] private float throwForce = 1f;
+    [SerializeField] private float throwMagForce = 1f;
+    [SerializeField] private float throwMagRotForce = 3f;
+    [SerializeField] private float throwMagTransitionSpeed = 1f;
 
     private void Start() 
     {
-        randomVector3 = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
         if (!bulletOrigin) bulletOrigin = transform;
         bulletsLeft = startingBulletCount;
         if (bulletsLeft > 0) magazineObject.SetActive(true);
@@ -48,17 +52,11 @@ public class Gun : MonoBehaviour
 
         if (bulletsLeft == 0)
         {
-            Debug.Log("Click!");
-            if (magazineObject.activeSelf)
-            {
-                GameObject discardedmag = Instantiate(emptyMagazineObject, magazineObject.transform.position, magazineObject.transform.rotation);
-                discardedmag.GetComponent<Rigidbody>().AddRelativeTorque(randomVector3 * dropRotationForce);
-                magazineObject.SetActive(false);
-            }
+            Debug.Log("No bullets!");
             return;
         }
 
-        Debug.Log("Bang!");
+            Debug.Log("Bang!");
         bulletsLeft--;
 
         if (Physics.Raycast(bulletOrigin.position, bulletOrigin.forward, out RaycastHit hitInfo, Mathf.Infinity, hitMask))
@@ -66,6 +64,7 @@ public class Gun : MonoBehaviour
             Debug.Log(hitInfo.collider.name);
             GameObject newhole = Instantiate(bulletHole, hitInfo.point, Quaternion.FromToRotation(bulletHole.transform.forward, -hitInfo.normal), hitInfo.collider.transform);
             newhole.transform.position += hitInfo.normal.normalized * 0.001f;
+            newhole.transform.Rotate(Vector3.forward, Random.Range(0f, 360f));
             if (hitInfo.transform)
             {
 
@@ -87,6 +86,32 @@ public class Gun : MonoBehaviour
                 }
             }
         }
+
+        if (bulletsLeft == 0)
+        {
+            Debug.Log("Click!");
+            if (magazineObject.activeSelf)
+            {
+                GameObject discardedmag = Instantiate(emptyMagazineObject, magazineObject.transform.position, magazineObject.transform.rotation);
+                discardedmag.GetComponent<Rigidbody>().AddRelativeTorque(randomVector3 * dropRotationForce);
+                discardedmag.GetComponent<Rigidbody>().AddRelativeForce(new Vector3(1f, 0, 0) * dropSideForce);
+                magazineObject.SetActive(false);
+            }
+            return;
+        }
+
+        StartCoroutine(AutomaticRefire());
+
+    }
+
+    private IEnumerator AutomaticRefire()
+    {
+
+        yield return new WaitForSeconds(refireRate);
+        if (Input.GetKey(fireKey)) GunShoot();
+
+        yield break;
+
     }
 
     public void DropGun()
@@ -106,12 +131,55 @@ public class Gun : MonoBehaviour
         Vector3 trajectoryVector = bulletOrigin.forward + Vector3.up * 0.2f;
         transform.parent = null;
         wielder = null;
-        Rigidbody rb = gameObject.GetComponent<Rigidbody>();
+        Rigidbody gunRB = gameObject.GetComponent<Rigidbody>();
         if (magazineObject.activeSelf) magazineObject.AddComponent<BoxCollider>();
         gameObject.GetComponent<BoxCollider>().enabled = true;
-        rb.isKinematic = false;
-        rb.AddRelativeTorque(randomVector3 * dropRotationForce);
-        rb.AddForce(trajectoryVector * throwForce, ForceMode.Impulse);
+        gunRB.isKinematic = false;
+        gunRB.AddRelativeTorque(RandVector3() * dropRotationForce);
+        gunRB.AddForce(trajectoryVector * throwForce, ForceMode.Impulse);
+    }
+
+    public void ThrowMagazine()
+    {
+        magazineObject.SetActive(false);
+        bulletsLeft = 0;
+        GameObject thrownMag = Instantiate(emptyMagazineObject, magazineObject.transform.position, magazineObject.transform.rotation);
+        Rigidbody magRB = thrownMag.GetComponent<Rigidbody>();
+        StartCoroutine(MagDampAndThrow(thrownMag, magRB));
+    }
+
+    private IEnumerator MagDampAndThrow(GameObject thrownMag, Rigidbody magazineRigidBody)
+    {
+        
+        Vector3 currentVel = Vector3.zero;
+        magazineRigidBody.isKinematic = true;
+        float localTSpeed = throwMagTransitionSpeed;
+
+        while (thrownMag.transform.position != wielder.magThrowPosition.position)
+        { 
+            thrownMag.transform.position = Vector3.SmoothDamp(thrownMag.transform.position,
+                wielder.magThrowPosition.position, ref currentVel, localTSpeed * 0.1f);
+            localTSpeed -= 0.0004f; //Over time, the damp speed gets more and more aggressive. 
+            if (localTSpeed < 0.0005f)
+            {
+                Debug.Log("Magazine has been waiting to throw for too long, throwing now.");
+                goto JustThrowIt; //If it takes too long, break out by using this label
+            }
+            yield return null;
+        }
+        JustThrowIt:
+        Vector3 trajectoryVector = bulletOrigin.forward + Vector3.up * 0.2f;
+        magazineRigidBody.isKinematic = false;
+        magazineRigidBody.AddForce(trajectoryVector * throwMagForce, ForceMode.Impulse);
+        magazineRigidBody.AddTorque(RandVector3() * throwMagRotForce, ForceMode.Impulse);
+        Debug.Log("Player threw the magazine directly from their gun!");
+        yield break;
+    }
+
+    private Vector3 RandVector3()
+    {
+        randomVector3 = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
+        return randomVector3;
     }
 
     /*private void PickupGun() //
