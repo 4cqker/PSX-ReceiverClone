@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
@@ -42,6 +43,8 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(pickupWeaponKey)) PickupWeapon();
 
+        if (Input.GetKey(KeyCode.J)) SpringTesting(gunHoldTransform.GetComponent<ConfigurableJoint>().connectedBody); //Testing force addition to gun
+
         if (currentWeapon is Gun)
         {
             if (Input.GetKeyDown(fireKey)) currentWeapon.GunShoot();
@@ -57,7 +60,6 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(aimSightKey)) StartCoroutine(AimWeapon());
         }
     }
-
     private IEnumerator AimWeapon()
     {
         Vector3 currentVelocity = Vector3.zero;
@@ -80,8 +82,6 @@ public class Player : MonoBehaviour
         }
         yield break;
     }
-
-
 
     private void PickupWeapon()
     {
@@ -135,6 +135,12 @@ public class Player : MonoBehaviour
         Gun currentWeaponScript = currentWeapon.GetComponent<Gun>();
         if (!currentWeaponScript.magazineObject.activeSelf) return;
         currentWeaponScript.ThrowMagazine();
+    }
+
+    //Press J to apply some kick to the physics testing gun
+    private void SpringTesting(Rigidbody gunRB)
+    {
+        gunRB.AddRelativeTorque(new Vector3(-1, 0, 0) * 10000000, ForceMode.Impulse);
     }
 
     private void SphereCheck()
