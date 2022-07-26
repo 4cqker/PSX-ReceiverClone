@@ -44,6 +44,8 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(pickupWeaponKey)) PickupWeapon();
 
         if (Input.GetKey(KeyCode.J)) SpringTesting(gunHoldTransform.GetComponent<ConfigurableJoint>().connectedBody); //Testing force addition to gun
+        if (Input.GetKey(KeyCode.J) && Input.GetKey(KeyCode.LeftShift)) 
+            gunHoldTransform.GetComponent<ConfigurableJoint>().connectedBody.gameObject.SetActive(false); //Turn off the testing gun
 
         if (currentWeapon is Gun)
         {
