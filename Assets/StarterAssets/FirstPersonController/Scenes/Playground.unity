@@ -648,7 +648,7 @@ ConfigurableJoint:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 737904017}
-  m_ConnectedBody: {fileID: 863403284}
+  m_ConnectedBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
@@ -861,11 +861,6 @@ Transform:
   m_Father: {fileID: 2092069028}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &863403284 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 4486671369433666094, guid: 66c6e4d3b5a8796458e0e9c86947b296, type: 3}
-  m_PrefabInstance: {fileID: 1577504608}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &874605735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1797,6 +1792,10 @@ PrefabInstance:
     - target: {fileID: 133057181498872802, guid: 66c6e4d3b5a8796458e0e9c86947b296, type: 3}
       propertyPath: m_Name
       value: Pistol Jointed
+      objectReference: {fileID: 0}
+    - target: {fileID: 133057181498872802, guid: 66c6e4d3b5a8796458e0e9c86947b296, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2743041017738630961, guid: 66c6e4d3b5a8796458e0e9c86947b296, type: 3}
       propertyPath: m_LocalPosition.x
