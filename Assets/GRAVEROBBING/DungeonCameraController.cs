@@ -21,10 +21,12 @@ public class DungeonCameraController : MonoBehaviour
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
     private Vector3 originalPosition;
+    private GameObject rollHandler;
 
     private bool isCrouching = false;
     private float defaultHeight;
     private float verticalVelocity = 0f;
+    private float rollVelocity = 0f;
     private float airTimer = 0f;
 
     void Start()
@@ -32,6 +34,7 @@ public class DungeonCameraController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         defaultHeight = controller.height;
         originalPosition = Camera.main.transform.localPosition;
+        rollHandler = Camera.main.transform.parent.gameObject;
     }
 
     void Update()
@@ -85,6 +88,9 @@ public class DungeonCameraController : MonoBehaviour
             Vector3 currentVelocity = Vector3.zero;
             Camera.main.transform.localPosition = Vector3.SmoothDamp(Camera.main.transform.localPosition, originalPosition, ref currentVelocity, bobResetSpeed);
         }
+        //Camera Tilting is broken when turning Left. Bug fix if you want the feature in @RHYS
+        //UpdateCameraRoll(rollHandler, 6f, 0.2f);
+
     }
     
     private void FixedUpdate()
@@ -97,5 +103,12 @@ public class DungeonCameraController : MonoBehaviour
         float bobbingAmount = Mathf.Sin(Time.time * 2 * Mathf.PI * bobbingFrequency) * bobbingAmplitude;
         Vector3 newPosition = new Vector3(originalPosition.x, originalPosition.y + bobbingAmount, originalPosition.z);
         cam.localPosition = Vector3.Lerp(cam.localPosition, newPosition, Time.deltaTime * movementSpeed);
+    }
+
+    void UpdateCameraRoll(GameObject rollHandler, float maxRollAngle, float smoothTime)
+    {
+        float targetRoll = Mathf.Clamp(Input.GetAxis("Mouse X") * 2f, -maxRollAngle, maxRollAngle);
+        float currentRoll = Mathf.SmoothDamp(rollHandler.transform.eulerAngles.z, targetRoll, ref rollVelocity, smoothTime);
+        rollHandler.transform.eulerAngles = new Vector3(rollHandler.transform.eulerAngles.x, rollHandler.transform.eulerAngles.y, currentRoll);
     }
 }
