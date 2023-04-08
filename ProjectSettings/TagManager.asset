@@ -7,6 +7,7 @@ TagManager:
   - CinemachineTarget
   - Weapon
   - Magazine
+  - Ground
   layers:
   - Default
   - TransparentFX
