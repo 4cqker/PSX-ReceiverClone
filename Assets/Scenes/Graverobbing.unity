@@ -1043,7 +1043,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 90
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1106,9 +1106,9 @@ CharacterController:
   serializedVersion: 2
   m_Height: 2
   m_Radius: 0.5
-  m_SlopeLimit: 80
-  m_StepOffset: 0.6
-  m_SkinWidth: 0.05
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1490824680
@@ -1123,17 +1123,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4808875fc35e4d74b9290a166c2b97b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 3
+  movementSpeed: 5
   crouchHeight: 0.5
-  mouseSensitivity: 1
-  minimumVerticalAngle: -85
-  maximumVerticalAngle: 85
-  headBobModifier: 15
-  headBobAmplifier: 0.7
-  headBobSpeed: 1.5
-  bobResetSpeed: 0.04
-  grav: -0.6
+  mouseSensitivity: 2
+  minVerticalLookAngle: -80
+  maxVerticalLookAngle: 80
+  grav: -0.981
   jumpForce: 12
+  headBobAmplitude: 1
+  headBobFrequency: 1
+  cameraTiltAngle: 5
+  cameraTiltSpeed: 0.1
 --- !u!4 &1490824681
 Transform:
   m_ObjectHideFlags: 0
