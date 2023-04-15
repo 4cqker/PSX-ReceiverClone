@@ -1123,16 +1123,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4808875fc35e4d74b9290a166c2b97b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 5
+  movementSpeed: 3
   crouchHeight: 0.5
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
   grav: -0.981
   jumpForce: 12
-  headBobAmplitude: 1
-  headBobFrequency: 1
-  cameraTiltAngle: 5
+  headBobAmplitude: 0.1
+  headBobFrequency: 12
+  cameraTiltAngle: 3
   cameraTiltSpeed: 0.1
 --- !u!4 &1490824681
 Transform:

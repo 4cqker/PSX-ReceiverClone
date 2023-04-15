@@ -22,10 +22,12 @@ public class DungeonCameraController : MonoBehaviour
     public float cameraTiltSpeed = 0.1f;
 
     private CharacterController controller;
+    private Transform camTransform;
 
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
     private Vector3 originalPosition;
+    private Vector3 moveDirection;
     private GameObject rollHandler;
 
     private bool isCrouching = false;
@@ -37,9 +39,10 @@ public class DungeonCameraController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        camTransform = GetComponentInChildren<Camera>().transform;
         defaultHeight = controller.height;
-        originalPosition = Camera.main.transform.localPosition;
-        rollHandler = Camera.main.transform.parent.gameObject;
+        originalPosition = camTransform.localPosition;
+        rollHandler = camTransform.parent.gameObject;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -78,12 +81,8 @@ public class DungeonCameraController : MonoBehaviour
             float horizontalInput = Input.GetAxisRaw("Horizontal");
             float verticalInput = Input.GetAxisRaw("Vertical");
 
-
-            Vector3 forward = transform.forward;
-            forward.y = 0f;
-            forward = forward.normalized;
-            Vector3 moveDirection = forward * verticalInput + transform.right * horizontalInput;
-            moveDirection = moveDirection.normalized * movementSpeed * Time.deltaTime;
+            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput) * movementSpeed * Time.deltaTime;
             controller.Move(moveDirection);
         }
 
@@ -100,9 +99,9 @@ public class DungeonCameraController : MonoBehaviour
 
         void HeadBobbing()
         {
-            if (controller.isGrounded || !Mathf.Approximately(0f, headBobAmount))
+            if (moveDirection.magnitude > Mathf.Epsilon)
             headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude;
-            Camera.main.transform.localPosition = new Vector3(originalPosition.x, originalPosition.y + headBobAmount, originalPosition.z);
+            camTransform.localPosition = new Vector3(originalPosition.x, originalPosition.y + headBobAmount, originalPosition.z);
         }
 
         void CameraRoll()
