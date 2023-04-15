@@ -107,18 +107,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4808875fc35e4d74b9290a166c2b97b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 3
+  movementSpeed: 2.2
   crouchHeight: 0.5
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
-  grav: -0.981
+  gravity: 3
+  terminalVelocity: 55.55
   jumpForce: 12
-  headBobAmplitude: 0
-  headBobFrequency: 12
-  cameraTiltAngle: 0
+  headBobAmplitude: 0.05
+  headBobFrequency: 11
+  cameraTiltAngle: 2.5
   cameraTiltSpeed: 0.15
-  velocity: 0
 --- !u!143 &8988405828425450976
 CharacterController:
   m_ObjectHideFlags: 0
@@ -194,7 +194,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 90
+  field of view: 75
   orthographic: 0
   orthographic size: 5
   m_Depth: -1

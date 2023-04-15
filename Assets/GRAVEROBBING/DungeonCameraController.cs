@@ -10,7 +10,8 @@ public class DungeonCameraController : MonoBehaviour
     public float minVerticalLookAngle = -80.0f;
     public float maxVerticalLookAngle = 80.0f;
     [Space]
-    public float grav = -4f;
+    public float gravity = 9.81f;
+    public float terminalVelocity = 55.55f;
     public float jumpForce = 2f;
     [Space]
     [Header("Game Feel")]
@@ -36,7 +37,13 @@ public class DungeonCameraController : MonoBehaviour
     private float verticalVelocity = 0f;
     private float rollVelocity = 0f;
     private float airTimer = 0f;
-    public float velocity;
+
+    private float horizontalInput;
+    private float verticalInput;
+    private float mouseX;
+    private float mouseY;
+
+    private float currentFallForce;
 
     void Start()
     {
@@ -53,25 +60,7 @@ public class DungeonCameraController : MonoBehaviour
 
     void Update()
     {
-        if (controller.isGrounded)
-        {
-            airTimer = 0f;
-            if (Input.GetButtonDown("Jump"))
-            {
-                //Jump
-            }
-        }
-        else
-        {
-            airTimer += 0.1f;
-        }
-
-        if (Input.GetButtonDown("Crouch"))
-        {
-            //crouch
-        }
-
-        Movement();
+        InputDetection();
 
         MouseLooking();
 
@@ -79,23 +68,17 @@ public class DungeonCameraController : MonoBehaviour
 
         CameraRoll();
 
-        velocity = controller.velocity.magnitude;
-
-        void Movement()
+        void InputDetection()
         {
-            float horizontalInput = Input.GetAxisRaw("Horizontal");
-            float verticalInput = Input.GetAxisRaw("Vertical");
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+            verticalInput = Input.GetAxisRaw("Vertical");
 
-            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput) * movementSpeed * Time.deltaTime;
-            controller.Move(moveDirection);
+            mouseX = Input.GetAxis("Mouse X");
+            mouseY = Input.GetAxis("Mouse Y");
         }
 
         void MouseLooking()
         {
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-
             horizontalAngle += mouseX * mouseSensitivity;
             verticalAngle -= mouseY * mouseSensitivity;
             verticalAngle = Mathf.Clamp(verticalAngle, minVerticalLookAngle, maxVerticalLookAngle);
@@ -104,8 +87,8 @@ public class DungeonCameraController : MonoBehaviour
 
         void HeadBobbing()
         {
-            if (moveDirection.magnitude > Mathf.Epsilon)
-            headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
+            if (controller.isGrounded && moveDirection.magnitude > Mathf.Epsilon)
+                headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
             bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
         }
 
@@ -122,7 +105,21 @@ public class DungeonCameraController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //todo I don't think this is working properly
-        controller.Move(new Vector3(0, grav * airTimer * Time.deltaTime, 0));
+        Moving();
+
+        Jumping();
+
+        void Moving()
+        {
+            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);           
+        }
+
+        void Jumping()
+        {
+            currentFallForce = controller.isGrounded ? 0f : Mathf.Clamp(currentFallForce - Mathf.Abs(gravity) * Time.deltaTime, -Mathf.Abs(terminalVelocity), 0f);
+        }
+
+        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
     }
 }
