@@ -28,13 +28,15 @@ public class DungeonCameraController : MonoBehaviour
     private float horizontalAngle = 0.0f;
     private Vector3 originalPosition;
     private Vector3 moveDirection;
-    private GameObject rollHandler;
+    private Transform tiltHandler;
+    private Transform bobHandler;
 
     private bool isCrouching = false;
     private float defaultHeight;
     private float verticalVelocity = 0f;
     private float rollVelocity = 0f;
     private float airTimer = 0f;
+    public float velocity;
 
     void Start()
     {
@@ -42,7 +44,8 @@ public class DungeonCameraController : MonoBehaviour
         camTransform = GetComponentInChildren<Camera>().transform;
         defaultHeight = controller.height;
         originalPosition = camTransform.localPosition;
-        rollHandler = camTransform.parent.gameObject;
+        tiltHandler = camTransform.parent;
+        bobHandler = tiltHandler.parent;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -76,6 +79,8 @@ public class DungeonCameraController : MonoBehaviour
 
         CameraRoll();
 
+        velocity = controller.velocity.magnitude;
+
         void Movement()
         {
             float horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -100,18 +105,18 @@ public class DungeonCameraController : MonoBehaviour
         void HeadBobbing()
         {
             if (moveDirection.magnitude > Mathf.Epsilon)
-            headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude;
-            camTransform.localPosition = new Vector3(originalPosition.x, originalPosition.y + headBobAmount, originalPosition.z);
+            headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
+            bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
         }
 
         void CameraRoll()
         {
             Quaternion targetRoll = Quaternion.Euler(new Vector3(
-                rollHandler.transform.eulerAngles.x,
-                rollHandler.transform.eulerAngles.y,
+                tiltHandler.eulerAngles.x,
+                tiltHandler.eulerAngles.y,
                 Input.GetAxisRaw("Horizontal") * -cameraTiltAngle));
 
-            rollHandler.transform.rotation = Quaternion.Lerp(rollHandler.transform.rotation, targetRoll, Time.deltaTime / cameraTiltSpeed);
+            tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetRoll, Time.deltaTime / cameraTiltSpeed);
         }
     }
 
