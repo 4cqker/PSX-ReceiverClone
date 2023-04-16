@@ -7,11 +7,12 @@ using UnityEngine;
 public class TouchElevator : MonoBehaviour
 {
     public float distance = 5f; // distance to move vertically
+    public float speed = 1f; // speed of movement
     public float delay = 2f; // delay before moving back to original position
     public GameObject elevator; // reference to the elevator object
     private Vector3 originalPosition; // initial position of the elevator
     private Vector3 targetPosition; // target position of the elevator
-    private bool moving = false; // flag to indicate whether the elevator is currently moving
+    private bool playerInside = false; // flag to indicate whether the player is inside the collision box
     private float timer = 0f; // timer to keep track of delay
 
     private void Start()
@@ -23,53 +24,31 @@ public class TouchElevator : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         CharacterController player = other.gameObject.GetComponent<CharacterController>();
-        if (!moving && player != null)
+        if (player != null)
         {
-            moving = true;
-            timer = 0f; // reset the timer when the elevator starts moving
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        CharacterController player = other.gameObject.GetComponent<CharacterController>();
-        if (moving && player != null)
-        {
-            // check if the player is still in contact with the trigger when the elevator reaches its target position
-            if (elevator.transform.position == targetPosition)
-            {
-                moving = false;
-            }
+            playerInside = true;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
         CharacterController player = other.gameObject.GetComponent<CharacterController>();
-        if (moving && player != null)
+        if (player != null)
         {
-            moving = false;
-            // start the delay timer when the player leaves the trigger box
-            timer = 0f;
+            playerInside = false;
+            timer = 0f; // reset the delay timer when the player leaves the trigger box
         }
     }
 
     private void FixedUpdate()
     {
-        if (moving)
+        Vector3 target = playerInside ? targetPosition : originalPosition;
+        float step = speed * Time.fixedDeltaTime;
+        elevator.transform.position = Vector3.MoveTowards(elevator.transform.position, target, step);
+
+        if (!playerInside && timer < delay)
         {
-            // move the elevator towards the target position
-            elevator.transform.position = Vector3.MoveTowards(elevator.transform.position, targetPosition, Time.fixedDeltaTime);
-        }
-        else
-        {
-            // start the delay timer
-            timer += Time.fixedDeltaTime;
-            if (timer >= delay)
-            {
-                // move the elevator back to the original position after the delay has elapsed
-                elevator.transform.position = Vector3.MoveTowards(elevator.transform.position, originalPosition, Time.fixedDeltaTime);
-            }
+            timer += Time.fixedDeltaTime; // start the delay timer when the player leaves the trigger box
         }
     }
 }

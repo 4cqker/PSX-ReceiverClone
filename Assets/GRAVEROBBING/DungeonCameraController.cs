@@ -45,6 +45,7 @@ public class DungeonCameraController : MonoBehaviour
     private bool jumpInput;
 
     private float currentFallForce;
+    private Vector3 verticalVector;
 
     void Start()
     {
@@ -90,6 +91,13 @@ public class DungeonCameraController : MonoBehaviour
 
         void HeadBobbing()
         {
+
+            //BUG: I spotted an issue where the Headbobbing does not start from original position each time.
+            //This means that if you are tapping a movement key over and over, you can see the camera jumping around and it's jarring.
+            //It does this (AFAIK) because we are simply reading the Sin value at the time we press the input and teleporting the camera
+            //to that spot. We're going to have to have a headBobTimer or something that counts up as you're moving, but resets when still.
+            //At least, that's a simple fix - if you know a better one, lets brainstorm.
+
             if (controller.isGrounded && moveDirection.magnitude > Mathf.Epsilon)
                 headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
             bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
@@ -120,9 +128,24 @@ public class DungeonCameraController : MonoBehaviour
 
         void Jumping()
         {
-            currentFallForce = controller.isGrounded ? 0f : Mathf.Clamp(currentFallForce - Mathf.Abs(gravity) * Time.deltaTime, -Mathf.Abs(terminalVelocity), 0f);
+            //completely redo how downward force (and the vertical vector to be applied in general) is calculated,
+            //so it can be in accordance with external forces + jumping. 
+            //The main prompter for this is that the elevator feels awful if you're not moving. We can't rely on any ideal cases
+            //We need a way of handling many factors of movement at the same time - this might also apply to X and Z factors.
+
+            if (controller.isGrounded)
+            {
+                currentFallForce = 0f;
+            }
+            else
+            {
+                currentFallForce = Mathf.Clamp(currentFallForce - Mathf.Abs(gravity) * Time.deltaTime, -Mathf.Abs(terminalVelocity), 0f);
+            }
+
+            //NOTE: I turned it back from a ternary because it actually ran off my screen at 125% zoom and that's shitty
         }
 
-        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
+        verticalVector = Vector3.up * currentFallForce; //New interrim Vector that should combine gravity, jump, other external factors
+        controller.Move(new Vector3(moveDirection.x, verticalVector.y, moveDirection.z) * movementSpeed * Time.deltaTime);
     }
 }
