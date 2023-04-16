@@ -42,6 +42,7 @@ public class DungeonCameraController : MonoBehaviour
     private float verticalInput;
     private float mouseX;
     private float mouseY;
+    private bool jumpInput;
 
     private float currentFallForce;
 
@@ -75,6 +76,8 @@ public class DungeonCameraController : MonoBehaviour
 
             mouseX = Input.GetAxis("Mouse X");
             mouseY = Input.GetAxis("Mouse Y");
+
+            jumpInput = Input.GetButton("Jump");
         }
 
         void MouseLooking()
