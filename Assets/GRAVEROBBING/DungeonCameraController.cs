@@ -81,6 +81,7 @@ public class DungeonCameraController : MonoBehaviour
             jumpInput = Input.GetButton("Jump");
         }
 
+        //Not sure if MouseLooking should be done in LateUpdate() or not, because it involves direct input.
         void MouseLooking()
         {
             horizontalAngle += mouseX * mouseSensitivity;
@@ -89,6 +90,7 @@ public class DungeonCameraController : MonoBehaviour
             transform.localRotation = Quaternion.Euler(verticalAngle, horizontalAngle, transform.localRotation.z);
         }
 
+        //Headbobbing should probably be done in LateUpdate()
         void HeadBobbing()
         {
 
@@ -103,6 +105,7 @@ public class DungeonCameraController : MonoBehaviour
             bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
         }
 
+        //This CameraRoll stuff is probably meant to be done in LateUpdate()
         void CameraRoll()
         {
             Quaternion targetRoll = Quaternion.Euler(new Vector3(
@@ -145,7 +148,7 @@ public class DungeonCameraController : MonoBehaviour
             //NOTE: I turned it back from a ternary because it actually ran off my screen at 125% zoom and that's shitty
         }
 
-        verticalVector = Vector3.up * currentFallForce; //New interrim Vector that should combine gravity, jump, other external factors
+        verticalVector = Vector3.up * currentFallForce; //New interrim Vector that should combine gravity, jump, other external factors?
         controller.Move(new Vector3(moveDirection.x, verticalVector.y, moveDirection.z) * movementSpeed * Time.deltaTime);
     }
 }
