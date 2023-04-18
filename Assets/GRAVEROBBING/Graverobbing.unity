@@ -2458,7 +2458,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.size
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: headBobAmplitude
@@ -2478,7 +2478,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravity
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[0].value
@@ -2490,11 +2490,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].time
-      value: 0.32244998
+      value: 0.33755618
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].value
-      value: 0.9187323
+      value: 0.955464
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].tangentMode
@@ -2502,11 +2502,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[0].inSlope
-      value: -0.252032
+      value: -0.13193654
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[0].outSlope
-      value: -0.252032
+      value: -0.13193654
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[0].outWeight
@@ -2514,15 +2514,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].inSlope
-      value: -0.77408594
+      value: -0.29996005
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].outSlope
-      value: -0.77408594
+      value: -0.29996005
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].inWeight
-      value: 0.20473175
+      value: 0.14299105
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[1].outWeight
@@ -2530,19 +2530,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].time
-      value: 0.83520406
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].value
-      value: 0.27321064
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].inSlope
-      value: -1.5477878
+      value: -2.7410681
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].outSlope
-      value: -1.5477878
+      value: -2.7410681
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].tangentMode
@@ -2550,11 +2550,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].inWeight
-      value: 0.090574004
+      value: 0.07683679
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[2].outWeight
-      value: 0.33333334
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[3].time
@@ -2575,6 +2575,18 @@ PrefabInstance:
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: gravityFallCurve.m_Curve.Array.data[3].inWeight
       value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: terminalVelocity
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: terminalVelocitySpan
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828432840086, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: near clip plane
+      value: 0.06
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
