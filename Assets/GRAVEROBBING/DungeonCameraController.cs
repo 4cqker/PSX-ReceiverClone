@@ -78,12 +78,6 @@ public class DungeonCameraController : MonoBehaviour
     {
         InputDetection();
 
-        MouseLooking();
-
-        HeadBobbing();
-
-        CameraRoll();
-
         void InputDetection()
         {
             horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -96,6 +90,46 @@ public class DungeonCameraController : MonoBehaviour
 
             sprintInput = Input.GetButton("Sprint");
         }
+    }
+
+    private void FixedUpdate()
+    {
+        Moving();
+
+        Jumping();
+
+        void Moving()
+        {
+                Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+                moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
+                if (sprintInput) moveDirection = moveDirection * sprintModifier;
+        }
+
+        void Jumping()
+        {
+            if (controller.isGrounded)
+            {
+                debugAirTimer = 0f;
+                currentFallForce = -Mathf.Abs(gravity);
+            }
+            else
+            {
+                debugAirTimer = Mathf.Clamp01(debugAirTimer + Time.deltaTime / terminalVelocitySpan);
+                currentFallForce = -gravityFallCurve.Evaluate(Mathf.Abs(debugAirTimer - 1)) * terminalVelocity;
+            }
+        }
+
+        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
+        debugFallVelocity = verticalVector.y;
+    }
+
+    private void LateUpdate()
+    {
+        MouseLooking();
+
+        HeadBobbing();
+
+        CameraRoll();
 
         //Not sure if MouseLooking should be done in LateUpdate() or not, because it involves direct input.
         void MouseLooking()
@@ -131,36 +165,5 @@ public class DungeonCameraController : MonoBehaviour
 
             tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetRoll, Time.deltaTime / cameraTiltSpeed);
         }
-    }
-
-    private void FixedUpdate()
-    {
-        Moving();
-
-        Jumping();
-
-        void Moving()
-        {
-                Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-                moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-                if (sprintInput) moveDirection = moveDirection * sprintModifier;
-        }
-
-        void Jumping()
-        {
-            if (controller.isGrounded)
-            {
-                debugAirTimer = 0f;
-                currentFallForce = -Mathf.Abs(gravity);
-            }
-            else
-            {
-                debugAirTimer = Mathf.Clamp01(debugAirTimer + Time.deltaTime / terminalVelocitySpan);
-                currentFallForce = -gravityFallCurve.Evaluate(Mathf.Abs(debugAirTimer - 1)) * terminalVelocity;
-            }
-        }
-
-        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
-        debugFallVelocity = verticalVector.y;
     }
 }
