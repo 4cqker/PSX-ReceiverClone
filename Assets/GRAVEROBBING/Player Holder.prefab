@@ -107,18 +107,57 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4808875fc35e4d74b9290a166c2b97b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 2.2
+  movementSpeed: 2.3
+  sprintModifier: 1.7
   crouchHeight: 0.5
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
-  gravity: 3
-  terminalVelocity: 55.55
+  gravity: 0
+  terminalVelocity: 10
+  terminalVelocitySpan: 5
   jumpForce: 12
-  headBobAmplitude: 0.05
+  headBobAmplitude: 0.03
   headBobFrequency: 11
   cameraTiltAngle: 2.5
   cameraTiltSpeed: 0.15
+  defaultCamFOV: 75
+  sprintingCamFOV: 90
+  gravityFallCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.13193654
+      outSlope: -0.13193654
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.33755618
+      value: 0.955464
+      inSlope: -0.29996005
+      outSlope: -0.29996005
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.14299105
+      outWeight: 0.087595485
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -2.7410681
+      outSlope: -2.7410681
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.07683679
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  debugFallVelocity: 0
+  debugAirTimer: 0
 --- !u!143 &8988405828425450976
 CharacterController:
   m_ObjectHideFlags: 0
@@ -192,7 +231,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.06
   far clip plane: 1000
   field of view: 75
   orthographic: 0
