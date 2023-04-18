@@ -3,6 +3,7 @@
 public class DungeonCameraController : MonoBehaviour
 {
     public float movementSpeed = 5f;
+    public float sprintModifier = 1.2f;
     [Space]
     public float crouchHeight = 0.5f;
     [Space]
@@ -21,6 +22,9 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     public float cameraTiltAngle = 15f;
     public float cameraTiltSpeed = 0.1f;
+    [Space]
+    public float defaultCamFOV = 75f;
+    public float sprintingCamFOV = 90f;
 
     private CharacterController controller;
     private Transform camTransform;
@@ -42,7 +46,9 @@ public class DungeonCameraController : MonoBehaviour
     private float verticalInput;
     private float mouseX;
     private float mouseY;
+
     private bool jumpInput;
+    private bool sprintInput;
 
     private float currentFallForce;
     private Vector3 verticalVector;
@@ -79,6 +85,8 @@ public class DungeonCameraController : MonoBehaviour
             mouseY = Input.GetAxis("Mouse Y");
 
             jumpInput = Input.GetButton("Jump");
+
+            sprintInput = Input.GetButton("Sprint");
         }
 
         //Not sure if MouseLooking should be done in LateUpdate() or not, because it involves direct input.
@@ -125,8 +133,9 @@ public class DungeonCameraController : MonoBehaviour
 
         void Moving()
         {
-            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);           
+                Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+                moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
+                if (sprintInput) moveDirection = moveDirection * sprintModifier;
         }
 
         void Jumping()
