@@ -43,7 +43,7 @@ public class DungeonCameraController : MonoBehaviour
     private float defaultHeight;
     private float verticalVelocity = 0f;
     private float rollVelocity = 0f;
-    private float airTimer = 0f;
+
 
     private float horizontalInput;
     private float verticalInput;
@@ -57,7 +57,8 @@ public class DungeonCameraController : MonoBehaviour
     private Vector3 verticalVector;
 
     [Header("Debug Variables")]
-    [SerializeField] private float fallingSpeed;
+    [SerializeField] private float debugFallVelocity = 0f;
+    public float debugAirTimer = 0f;
 
 
     void Start()
@@ -147,40 +148,19 @@ public class DungeonCameraController : MonoBehaviour
 
         void Jumping()
         {
-            //completely redo how downward force (and the vertical vector to be applied in general) is calculated,
-            //so it can be in accordance with external forces + jumping. 
-            //The main prompter for this is that the elevator feels awful if you're not moving. We can't rely on any ideal cases
-            //We need a way of handling many factors of movement at the same time - this might also apply to X and Z factors.
-
-            //CONSTANT LOWER GRAVITY METHOD
-            /*if (controller.isGrounded)
-            {
-                currentFallForce = -Mathf.Abs(gravity);
-            }
-            else
-            {
-                currentFallForce = Mathf.Clamp(currentFallForce - Mathf.Abs(gravity) * Time.deltaTime, -Mathf.Abs(terminalVelocity), 0f);
-            }*/
-
-            //GRAVITY CURVE METHOD
             if (controller.isGrounded)
             {
-                airTimer = 0f;
+                debugAirTimer = 0f;
                 currentFallForce = -Mathf.Abs(gravity);
             }
             else
             {
-                airTimer += Time.deltaTime / terminalVelocitySpan;
-                currentFallForce = gravityFallCurve.Evaluate(airTimer - 1) * terminalVelocity;
+                debugAirTimer = Mathf.Clamp01(debugAirTimer + Time.deltaTime / terminalVelocitySpan);
+                currentFallForce = -gravityFallCurve.Evaluate(Mathf.Abs(debugAirTimer - 1)) * terminalVelocity;
             }
-
-            //Use a timer that counts until terminal velocity span, dividing it so it's 0 - 1;
-            //Use that timer value to evaluate gravity curve, multiply the curve point by terminal velocity;
-
         }
 
-        verticalVector = Vector3.up * currentFallForce; //New interrim Vector that should combine gravity, jump, other external factors?
-        controller.Move(new Vector3(moveDirection.x, verticalVector.y, moveDirection.z) * movementSpeed * Time.deltaTime);
-        fallingSpeed = verticalVector.y;
+        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
+        debugFallVelocity = verticalVector.y;
     }
 }
