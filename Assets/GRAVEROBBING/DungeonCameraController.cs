@@ -13,6 +13,7 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     public float gravity = 9.81f;
     public float terminalVelocity = 55.55f;
+    public float terminalVelocitySpan = 3f;
     public float jumpForce = 2f;
     [Space]
     [Header("Game Feel")]
@@ -25,6 +26,8 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     public float defaultCamFOV = 75f;
     public float sprintingCamFOV = 90f;
+
+    public AnimationCurve gravityFallCurve;
 
     private CharacterController controller;
     private Transform camTransform;
@@ -52,6 +55,10 @@ public class DungeonCameraController : MonoBehaviour
 
     private float currentFallForce;
     private Vector3 verticalVector;
+
+    [Header("Debug Variables")]
+    [SerializeField] private float fallingSpeed;
+
 
     void Start()
     {
@@ -145,19 +152,35 @@ public class DungeonCameraController : MonoBehaviour
             //The main prompter for this is that the elevator feels awful if you're not moving. We can't rely on any ideal cases
             //We need a way of handling many factors of movement at the same time - this might also apply to X and Z factors.
 
-            if (controller.isGrounded)
+            //CONSTANT LOWER GRAVITY METHOD
+            /*if (controller.isGrounded)
             {
-                currentFallForce = 0f;
+                currentFallForce = -Mathf.Abs(gravity);
             }
             else
             {
                 currentFallForce = Mathf.Clamp(currentFallForce - Mathf.Abs(gravity) * Time.deltaTime, -Mathf.Abs(terminalVelocity), 0f);
+            }*/
+
+            //GRAVITY CURVE METHOD
+            if (controller.isGrounded)
+            {
+                airTimer = 0f;
+                currentFallForce = -Mathf.Abs(gravity);
+            }
+            else
+            {
+                airTimer += Time.deltaTime / terminalVelocitySpan;
+                currentFallForce = gravityFallCurve.Evaluate(airTimer - 1) * terminalVelocity;
             }
 
-            //NOTE: I turned it back from a ternary because it actually ran off my screen at 125% zoom and that's shitty
+            //Use a timer that counts until terminal velocity span, dividing it so it's 0 - 1;
+            //Use that timer value to evaluate gravity curve, multiply the curve point by terminal velocity;
+
         }
 
         verticalVector = Vector3.up * currentFallForce; //New interrim Vector that should combine gravity, jump, other external factors?
         controller.Move(new Vector3(moveDirection.x, verticalVector.y, moveDirection.z) * movementSpeed * Time.deltaTime);
+        fallingSpeed = verticalVector.y;
     }
 }
