@@ -2,6 +2,7 @@
 
 public class DungeonCameraController : MonoBehaviour
 {
+    [Header("Locomotion")]
     public float movementSpeed = 5f;
     public float sprintModifier = 1.2f;
     [Space]
@@ -11,30 +12,32 @@ public class DungeonCameraController : MonoBehaviour
     public float minVerticalLookAngle = -80.0f;
     public float maxVerticalLookAngle = 80.0f;
     [Space]
-    public float gravity = 9.81f;
+    public float groundedGravity = 9.81f;
+    public AnimationCurve gravityFallCurve;
+    public bool invertFallCurve;
     public float terminalVelocity = 55.55f;
     public float terminalVelocitySpan = 3f;
     public float jumpForce = 2f;
     [Space]
-    [Header("Game Feel")]
+    [Header("Camera")]
     public float headBobAmplitude = 1.3f;
     public float headBobFrequency = 1.3f;
+    public bool enableHeadbob = true;
     private float headBobAmount = 0f;
     [Space]
     public float cameraTiltAngle = 15f;
     public float cameraTiltSpeed = 0.1f;
+    public bool enableCameraTilt = true;
     [Space]
     public float defaultCamFOV = 75f;
     public float sprintingCamFOV = 90f;
-
-    public AnimationCurve gravityFallCurve;
+    public bool enableFOVChange = true;
 
     private CharacterController controller;
     private Transform camTransform;
 
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
-    private Vector3 originalPosition;
     private Vector3 moveDirection;
     private Transform tiltHandler;
     private Transform bobHandler;
@@ -56,9 +59,9 @@ public class DungeonCameraController : MonoBehaviour
     private float currentFallForce;
     private Vector3 verticalVector;
 
-    [Header("Debug Variables")]
-    [SerializeField] private float debugFallVelocity = 0f;
-    public float debugAirTimer = 0f;
+    [Header("Debug")]
+    public float DEBUGFallVelocity = 0f;
+    public float DEBUGAirTimer = 0f;
 
 
     void Start()
@@ -66,7 +69,6 @@ public class DungeonCameraController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         camTransform = GetComponentInChildren<Camera>().transform;
         defaultHeight = controller.height;
-        originalPosition = camTransform.localPosition;
         tiltHandler = camTransform.parent;
         bobHandler = tiltHandler.parent;
 
@@ -109,29 +111,28 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (controller.isGrounded)
             {
-                debugAirTimer = 0f;
-                currentFallForce = -Mathf.Abs(gravity);
+                DEBUGAirTimer = 0f;
+                currentFallForce = -Mathf.Abs(groundedGravity);
             }
             else
             {
-                debugAirTimer = Mathf.Clamp01(debugAirTimer + Time.deltaTime / terminalVelocitySpan);
-                currentFallForce = -gravityFallCurve.Evaluate(Mathf.Abs(debugAirTimer - 1)) * terminalVelocity;
+                DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
+                currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(DEBUGAirTimer - 1) : DEBUGAirTimer) * terminalVelocity;
             }
         }
 
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
-        debugFallVelocity = verticalVector.y;
+        DEBUGFallVelocity = verticalVector.y;
     }
 
     private void LateUpdate()
     {
         MouseLooking();
 
-        HeadBobbing();
+        if (enableHeadbob) HeadBobbing();
 
-        CameraRoll();
+        if (enableCameraTilt) CameraTilt();
 
-        //Not sure if MouseLooking should be done in LateUpdate() or not, because it involves direct input.
         void MouseLooking()
         {
             horizontalAngle += mouseX * mouseSensitivity;
@@ -140,30 +141,40 @@ public class DungeonCameraController : MonoBehaviour
             transform.localRotation = Quaternion.Euler(verticalAngle, horizontalAngle, transform.localRotation.z);
         }
 
-        //Headbobbing should probably be done in LateUpdate()
         void HeadBobbing()
         {
+            if (!enableHeadbob)
+            {
+                bobHandler.localPosition = Vector3.zero;
+                return;
+            }
 
-            //BUG: I spotted an issue where the Headbobbing does not start from original position each time.
-            //This means that if you are tapping a movement key over and over, you can see the camera jumping around and it's jarring.
-            //It does this (AFAIK) because we are simply reading the Sin value at the time we press the input and teleporting the camera
-            //to that spot. We're going to have to have a headBobTimer or something that counts up as you're moving, but resets when still.
-            //At least, that's a simple fix - if you know a better one, lets brainstorm.
-
-            if (controller.isGrounded && moveDirection.magnitude > Mathf.Epsilon)
+            if (controller.isGrounded && moveDirection.magnitude > Mathf.Epsilon || headBobAmount < -headBobAmplitude / 100f)
+            {
                 headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
+            }
+            else
+            {
+                headBobAmount = 0f;
+            }
+
             bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
         }
 
-        //This CameraRoll stuff is probably meant to be done in LateUpdate()
-        void CameraRoll()
+        void CameraTilt()
         {
-            Quaternion targetRoll = Quaternion.Euler(new Vector3(
+            if (!enableCameraTilt)
+            {
+                tiltHandler.rotation = Quaternion.identity;
+                return;
+            }
+
+            Quaternion targetTilt = Quaternion.Euler(new Vector3(
                 tiltHandler.eulerAngles.x,
                 tiltHandler.eulerAngles.y,
                 Input.GetAxisRaw("Horizontal") * -cameraTiltAngle));
 
-            tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetRoll, Time.deltaTime / cameraTiltSpeed);
+            tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetTilt, Time.deltaTime / cameraTiltSpeed);
         }
     }
 }

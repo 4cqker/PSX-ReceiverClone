@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8988405827919803562}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8988405827999210095}
@@ -113,51 +113,46 @@ MonoBehaviour:
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
-  gravity: 0
-  terminalVelocity: 10
-  terminalVelocitySpan: 5
-  jumpForce: 12
-  headBobAmplitude: 0.03
-  headBobFrequency: 11
-  cameraTiltAngle: 2.5
-  cameraTiltSpeed: 0.15
-  defaultCamFOV: 75
-  sprintingCamFOV: 90
+  groundedGravity: 0.1
   gravityFallCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: -0.13193654
-      outSlope: -0.13193654
-      tangentMode: 34
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.33755618
-      value: 0.955464
-      inSlope: -0.29996005
-      outSlope: -0.29996005
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.14299105
-      outWeight: 0.087595485
+      outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 0
-      inSlope: -2.7410681
-      outSlope: -2.7410681
+      value: 1
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.07683679
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  debugFallVelocity: 0
-  debugAirTimer: 0
+  invertFallCurve: 0
+  terminalVelocity: 55.55
+  terminalVelocitySpan: 12
+  jumpForce: 12
+  headBobAmplitude: 0.05
+  headBobFrequency: 11
+  enableHeadbob: 1
+  cameraTiltAngle: 2.5
+  cameraTiltSpeed: 0.15
+  enableCameraTilt: 1
+  defaultCamFOV: 75
+  sprintingCamFOV: 90
+  enableFOVChange: 1
+  DEBUGFallVelocity: 0
+  DEBUGAirTimer: 0
 --- !u!143 &8988405828425450976
 CharacterController:
   m_ObjectHideFlags: 0
