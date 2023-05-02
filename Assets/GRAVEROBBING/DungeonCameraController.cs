@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class DungeonCameraController : MonoBehaviour
 {
@@ -29,12 +30,16 @@ public class DungeonCameraController : MonoBehaviour
     public float cameraTiltSpeed = 0.1f;
     public bool enableCameraTilt = true;
     [Space]
-    public float defaultCamFOV = 75f;
-    public float sprintingCamFOV = 90f;
+    public float defaultFOV = 75f;
+    public float sprintFOV = 90f;
+    public float FOVChangeSpeed = 0.1f;
     public bool enableFOVChange = true;
 
     private CharacterController controller;
-    private Transform camTransform;
+    private Camera mainCamera;
+
+    private bool IsMoving => moveDirection.magnitude > Mathf.Epsilon;
+    private bool IsGrounded => controller.isGrounded;
 
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
@@ -60,16 +65,17 @@ public class DungeonCameraController : MonoBehaviour
     private Vector3 verticalVector;
 
     [Header("Debug")]
-    public float DEBUGFallVelocity = 0f;
+    public Vector3 DEBUGVelocity = Vector3.zero;
+    public float DEBUGmoveMagnitude = 0f;
     public float DEBUGAirTimer = 0f;
 
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        camTransform = GetComponentInChildren<Camera>().transform;
+        mainCamera = Camera.main;
         defaultHeight = controller.height;
-        tiltHandler = camTransform.parent;
+        tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -100,17 +106,23 @@ public class DungeonCameraController : MonoBehaviour
 
         Jumping();
 
+        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
+
+        DEBUGVelocity = controller.velocity;
+        DEBUGmoveMagnitude = moveDirection.magnitude;
+
         void Moving()
         {
-                Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-                moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-                if (sprintInput) moveDirection = moveDirection * sprintModifier;
+            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
+            if (sprintInput && (verticalInput > 0f || horizontalInput != 0f) && IsGrounded && IsMoving) moveDirection = moveDirection * sprintModifier;
         }
 
         void Jumping()
         {
-            if (controller.isGrounded)
+            if (IsGrounded)
             {
+                //potentially move debugs out
                 DEBUGAirTimer = 0f;
                 currentFallForce = -Mathf.Abs(groundedGravity);
             }
@@ -119,19 +131,18 @@ public class DungeonCameraController : MonoBehaviour
                 DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
                 currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(DEBUGAirTimer - 1) : DEBUGAirTimer) * terminalVelocity;
             }
-        }
-
-        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
-        DEBUGFallVelocity = verticalVector.y;
+        }    
     }
 
     private void LateUpdate()
     {
         MouseLooking();
 
-        if (enableHeadbob) HeadBobbing();
+        HeadBobbing();
 
-        if (enableCameraTilt) CameraTilt();
+        CameraTilt();
+
+        FieldOfView();
 
         void MouseLooking()
         {
@@ -149,7 +160,7 @@ public class DungeonCameraController : MonoBehaviour
                 return;
             }
 
-            if (controller.isGrounded && moveDirection.magnitude > Mathf.Epsilon || headBobAmount < -headBobAmplitude / 100f)
+            if (IsGrounded && IsMoving || headBobAmount < -headBobAmplitude / 100f)
             {
                 headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
             }
@@ -176,5 +187,17 @@ public class DungeonCameraController : MonoBehaviour
 
             tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetTilt, Time.deltaTime / cameraTiltSpeed);
         }
-    }
+
+        void FieldOfView()
+        {
+            if (!enableFOVChange)
+            {
+                mainCamera.fieldOfView = defaultFOV;
+                return;
+            }
+
+            float targetFOV = sprintInput && IsGrounded && IsMoving ? sprintFOV : defaultFOV;
+            mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, targetFOV, Time.deltaTime / FOVChangeSpeed);
+        }
+    }   
 }
