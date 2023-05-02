@@ -23,6 +23,7 @@ public class DungeonCameraController : MonoBehaviour
     [Header("Camera")]
     public float headBobAmplitude = 1.3f;
     public float headBobFrequency = 1.3f;
+    public float headBobReturnSpeed = 0.1f;
     public bool enableHeadbob = true;
     private float headBobAmount = 0f;
     [Space]
@@ -38,7 +39,7 @@ public class DungeonCameraController : MonoBehaviour
     private CharacterController controller;
     private Camera mainCamera;
 
-    private bool IsMoving => moveDirection.magnitude > Mathf.Epsilon;
+    private bool IsMoving => moveDirection.magnitude > 0.0001f;
     private bool IsGrounded => controller.isGrounded;
 
     private float verticalAngle = 0.0f;
@@ -109,27 +110,29 @@ public class DungeonCameraController : MonoBehaviour
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
 
         DEBUGVelocity = controller.velocity;
-        DEBUGmoveMagnitude = moveDirection.magnitude;
 
         void Moving()
         {
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
             if (sprintInput && (verticalInput > 0f || horizontalInput != 0f) && IsGrounded && IsMoving) moveDirection = moveDirection * sprintModifier;
+
+            DEBUGmoveMagnitude = moveDirection.magnitude;
         }
 
         void Jumping()
         {
             if (IsGrounded)
-            {
-                //potentially move debugs out
-                DEBUGAirTimer = 0f;
+            {            
                 currentFallForce = -Mathf.Abs(groundedGravity);
+
+                DEBUGAirTimer = 0f;
             }
             else
-            {
-                DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
+            {              
                 currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(DEBUGAirTimer - 1) : DEBUGAirTimer) * terminalVelocity;
+
+                DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
             }
         }    
     }
@@ -160,9 +163,13 @@ public class DungeonCameraController : MonoBehaviour
                 return;
             }
 
-            if (IsGrounded && IsMoving || headBobAmount < -headBobAmplitude / 100f)
+            if (IsGrounded && IsMoving)
             {
-                headBobAmount = Mathf.Sin(Time.time * headBobFrequency) * headBobAmplitude - headBobAmplitude;
+                headBobAmount = Mathf.Sin(Time.time * headBobFrequency * moveDirection.magnitude) * headBobAmplitude - headBobAmplitude;
+            }
+            else if (headBobAmount < -0.0001f)
+            {
+                headBobAmount = Mathf.Lerp(headBobAmount, 0f, Time.deltaTime / headBobReturnSpeed);
             }
             else
             {

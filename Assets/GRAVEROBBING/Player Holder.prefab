@@ -113,7 +113,7 @@ MonoBehaviour:
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
-  groundedGravity: 0.1
+  groundedGravity: 1
   gravityFallCurve:
     serializedVersion: 2
     m_Curve:
@@ -144,14 +144,17 @@ MonoBehaviour:
   jumpForce: 12
   headBobAmplitude: 0.05
   headBobFrequency: 11
+  headBobReturnSpeed: 0.1
   enableHeadbob: 1
   cameraTiltAngle: 2.5
   cameraTiltSpeed: 0.15
   enableCameraTilt: 1
-  defaultCamFOV: 75
-  sprintingCamFOV: 90
+  defaultFOV: 75
+  sprintFOV: 90
+  FOVChangeSpeed: 0.1
   enableFOVChange: 1
-  DEBUGFallVelocity: 0
+  DEBUGVelocity: {x: 0, y: 0, z: 0}
+  DEBUGmoveMagnitude: 0
   DEBUGAirTimer: 0
 --- !u!143 &8988405828425450976
 CharacterController:
@@ -168,7 +171,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.05
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8988405828432840072
