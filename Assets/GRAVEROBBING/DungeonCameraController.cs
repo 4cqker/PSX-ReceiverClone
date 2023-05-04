@@ -47,6 +47,7 @@ public class DungeonCameraController : MonoBehaviour
     private Vector3 moveDirection;
     private Transform tiltHandler;
     private Transform bobHandler;
+    private Vector3 headHeight;
 
     private bool isCrouching = false;
     private float defaultHeight;
@@ -78,6 +79,7 @@ public class DungeonCameraController : MonoBehaviour
         defaultHeight = controller.height;
         tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
+        headHeight = bobHandler.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -159,7 +161,7 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (!enableHeadbob)
             {
-                bobHandler.localPosition = Vector3.zero;
+                bobHandler.localPosition = headHeight;
                 return;
             }
 
@@ -176,7 +178,7 @@ public class DungeonCameraController : MonoBehaviour
                 headBobAmount = 0f;
             }
 
-            bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f);
+            bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f) + headHeight;
         }
 
         void CameraTilt()
