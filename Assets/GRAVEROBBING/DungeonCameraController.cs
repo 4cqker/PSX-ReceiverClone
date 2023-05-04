@@ -155,7 +155,8 @@ public class DungeonCameraController : MonoBehaviour
             horizontalAngle += mouseX * mouseSensitivity;
             verticalAngle -= mouseY * mouseSensitivity;
             verticalAngle = Mathf.Clamp(verticalAngle, minVerticalLookAngle, maxVerticalLookAngle);
-            transform.localRotation = Quaternion.Euler(verticalAngle, horizontalAngle, transform.localRotation.z);
+            transform.localRotation = Quaternion.Euler(transform.localRotation.x, horizontalAngle, transform.localRotation.z);
+            bobHandler.localRotation = Quaternion.Euler(verticalAngle, bobHandler.localRotation.y, bobHandler.localRotation.z);
         }
 
         void HeadBobbing()
