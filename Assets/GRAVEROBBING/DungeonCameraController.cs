@@ -26,6 +26,7 @@ public class DungeonCameraController : MonoBehaviour
     public float headBobReturnSpeed = 0.1f;
     public bool enableHeadbob = true;
     private float headBobAmount = 0f;
+    private float headBobStopwatch = 0f;
     [Space]
     public float cameraTiltAngle = 15f;
     public float cameraTiltSpeed = 0.1f;
@@ -167,14 +168,17 @@ public class DungeonCameraController : MonoBehaviour
 
             if (IsGrounded && IsMoving)
             {
-                headBobAmount = Mathf.Sin(Time.time * headBobFrequency * moveDirection.magnitude) * headBobAmplitude - headBobAmplitude;
+                headBobStopwatch += Time.deltaTime;
+                headBobAmount = Mathf.Sin(1 + headBobStopwatch * headBobFrequency * moveDirection.magnitude) * headBobAmplitude - headBobAmplitude;
             }
             else if (headBobAmount < -0.0001f)
             {
+                headBobStopwatch = 0f;
                 headBobAmount = Mathf.Lerp(headBobAmount, 0f, Time.deltaTime / headBobReturnSpeed);
             }
             else
             {
+                headBobStopwatch = 0f;
                 headBobAmount = 0f;
             }
 
