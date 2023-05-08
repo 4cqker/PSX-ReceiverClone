@@ -1204,13 +1204,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712798843}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 60.944, y: 19.872, z: -12.294}
-  m_LocalScale: {x: 2.3740342, y: 0.5192645, z: 2.3824759}
+  m_LocalRotation: {x: -0, y: -0, z: 0.0934632, w: 0.9956228}
+  m_LocalPosition: {x: 60.77, y: 20.06, z: -12.294}
+  m_LocalScale: {x: 2.3740342, y: 0.4809623, z: 2.3824759}
   m_Children: []
   m_Father: {fileID: 1448630872}
   m_RootOrder: 16
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 10.726}
 --- !u!65 &712798845
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2037,22 +2037,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 8988405827919803561, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
-      propertyPath: m_Height
-      value: 1.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
-      propertyPath: m_Center.y
-      value: 0.85
-      objectReference: {fileID: 0}
-    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
-      propertyPath: m_SkinWidth
-      value: 0.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450979, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: m_Name
       value: Player Holder
@@ -2102,8 +2086,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
-      propertyPath: sprintFOV
-      value: 90
+      propertyPath: crouchCameraDrop
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: crouchHeight
+      value: 0.7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}

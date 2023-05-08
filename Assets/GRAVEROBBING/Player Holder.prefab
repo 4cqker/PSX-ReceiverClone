@@ -141,7 +141,8 @@ MonoBehaviour:
   movementSpeed: 2.3
   sprintModifier: 1.7
   crouchModifier: 0.65
-  crouchHeight: 0.5
+  crouchCameraDrop: -1
+  crouchHeight: 0.7
   enterCrouchCurve:
     serializedVersion: 2
     m_Curve: []
@@ -154,7 +155,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  crouchSpan: 0.2
+  crouchUrgency: 10
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
@@ -213,7 +214,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 1.7
-  m_Radius: 0.3
+  m_Radius: 0.25
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.1

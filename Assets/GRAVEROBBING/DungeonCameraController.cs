@@ -8,10 +8,11 @@ public class DungeonCameraController : MonoBehaviour
     public float sprintModifier = 1.2f;
     public float crouchModifier = 0.65f;
     [Space]
-    public float crouchHeight = 0.5f;
+    public float crouchCameraDrop = 1f;
+    public float crouchHeight = 1f;
     public AnimationCurve enterCrouchCurve;
     public AnimationCurve exitCrouchCurve;
-    public float crouchSpan = 0.2f;
+    public float crouchUrgency = 10f;
     private float defaultHeight;
     [Space]
     public float mouseSensitivity = 100f;
@@ -84,7 +85,7 @@ public class DungeonCameraController : MonoBehaviour
         tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
         crouchHandler = bobHandler.parent;
-        initialCrouchHeight = crouchHandler.transform.position;
+        initialCrouchHeight = crouchHandler.transform.localPosition;
         initialHeadBobHeight = bobHandler.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -173,7 +174,7 @@ public class DungeonCameraController : MonoBehaviour
 
         CameraTilt();
 
-        /*CrouchCamera();*/
+        CrouchCamera(IsCrouching);
 
         FieldOfView();
 
@@ -230,16 +231,18 @@ public class DungeonCameraController : MonoBehaviour
             tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetTilt, Time.deltaTime / cameraTiltSpeed);
         }
 
-        /*void CrouchCamera()
+        void CrouchCamera(bool isCrouching)
         {
-            if (IsCrouching)
-            {
-                float heightTarget = IsCrouching ? crouchHeight : defaultHeight;
-                Vector3 halfHeightDifference = new Vector3(0, (defaultHeight - heightTarget) / 2, 0);
-                Vector3 newCamPosition = initialCrouchHeight - halfHeightDifference;
-                crouchHandler.localPosition = newCamPosition;
-            }
-        }*/
+            Vector3 targetPosition = isCrouching ? initialCrouchHeight - (crouchCameraDrop * Vector3.down) : initialCrouchHeight;
+            crouchHandler.localPosition = Vector3.Lerp(crouchHandler.localPosition, targetPosition, crouchUrgency * Time.deltaTime);
+
+            //Camera neatness and Floating Point Rounding
+            if (Vector3.Distance(crouchHandler.localPosition, initialCrouchHeight) < 0.01f)
+                crouchHandler.localPosition = initialCrouchHeight;
+            else if (Vector3.Distance(crouchHandler.localPosition, targetPosition) < 0.01f)
+                crouchHandler.localPosition = targetPosition;
+
+        }
 
         void FieldOfView()
         {
