@@ -2097,6 +2097,10 @@ PrefabInstance:
       propertyPath: crouchUrgency
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450991, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: crouchCeilingOffset
+      value: 0.01
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
 --- !u!1 &1492290393
