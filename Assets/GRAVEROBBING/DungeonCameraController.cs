@@ -55,7 +55,9 @@ public class DungeonCameraController : MonoBehaviour
     private Vector3 moveDirection;
     private Transform tiltHandler;
     private Transform bobHandler;
-    private Vector3 headHeight;
+    private Transform crouchHandler;
+    private Vector3 initialCrouchHeight;
+    private Vector3 initialHeadBobHeight;
 
     private float horizontalInput;
     private float verticalInput;
@@ -81,7 +83,9 @@ public class DungeonCameraController : MonoBehaviour
         mainCamera = Camera.main;
         tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
-        headHeight = bobHandler.localPosition;
+        crouchHandler = bobHandler.parent;
+        initialCrouchHeight = crouchHandler.transform.position;
+        initialHeadBobHeight = bobHandler.localPosition;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -145,15 +149,18 @@ public class DungeonCameraController : MonoBehaviour
 
         void Crouching()
         {
+            // Nicer Version of Crouching - try to adjust both controller and transform
             if (IsCrouching)
             {
                 controller.height = crouchHeight;
                 controller.center = new Vector3(0f, crouchHeight / 2, 0);
+                controller.Move(Vector3.forward * controller.minMoveDistance);
             }
             else
             {
                 controller.height = defaultHeight;
                 controller.center = new Vector3(0f, defaultHeight / 2, 0);
+                controller.Move(Vector3.forward * controller.minMoveDistance);
             }
         }
     }
@@ -165,6 +172,8 @@ public class DungeonCameraController : MonoBehaviour
         HeadBobbing();
 
         CameraTilt();
+
+        /*CrouchCamera();*/
 
         FieldOfView();
 
@@ -181,7 +190,7 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (!enableHeadbob)
             {
-                bobHandler.localPosition = headHeight;
+                bobHandler.localPosition = initialHeadBobHeight;
                 return;
             }
 
@@ -202,7 +211,7 @@ public class DungeonCameraController : MonoBehaviour
                 headBobAmount = 0f;
             }
 
-            bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f) + headHeight;
+            bobHandler.localPosition = new Vector3(0f, headBobAmount, 0f) + initialHeadBobHeight;
         }
 
         void CameraTilt()
@@ -220,6 +229,17 @@ public class DungeonCameraController : MonoBehaviour
 
             tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetTilt, Time.deltaTime / cameraTiltSpeed);
         }
+
+        /*void CrouchCamera()
+        {
+            if (IsCrouching)
+            {
+                float heightTarget = IsCrouching ? crouchHeight : defaultHeight;
+                Vector3 halfHeightDifference = new Vector3(0, (defaultHeight - heightTarget) / 2, 0);
+                Vector3 newCamPosition = initialCrouchHeight - halfHeightDifference;
+                crouchHandler.localPosition = newCamPosition;
+            }
+        }*/
 
         void FieldOfView()
         {
