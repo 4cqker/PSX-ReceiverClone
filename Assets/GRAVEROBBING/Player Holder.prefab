@@ -109,7 +109,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 2.3
   sprintModifier: 1.7
+  crouchModifier: 0.65
   crouchHeight: 0.5
+  enterCrouchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  exitCrouchCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  crouchSpan: 0.2
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
@@ -143,18 +157,18 @@ MonoBehaviour:
   terminalVelocitySpan: 12
   jumpForce: 12
   headBobAmplitude: 0.05
-  headBobFrequency: 11
+  headBobFrequency: 2
   headBobReturnSpeed: 0.1
   enableHeadbob: 1
   cameraTiltAngle: 2.5
   cameraTiltSpeed: 0.15
   enableCameraTilt: 1
   defaultFOV: 75
-  sprintFOV: 75
+  sprintFOV: 90
   FOVChangeSpeed: 0.1
   enableFOVChange: 1
   DEBUGVelocity: {x: 0, y: 0, z: 0}
-  DEBUGmoveMagnitude: 0
+  DEBUGMoveMagnitude: 0
   DEBUGAirTimer: 0
 --- !u!143 &8988405828425450976
 CharacterController:

@@ -6,8 +6,12 @@ public class DungeonCameraController : MonoBehaviour
     [Header("Locomotion")]
     public float movementSpeed = 5f;
     public float sprintModifier = 1.2f;
+    public float crouchModifier = 0.65f;
     [Space]
     public float crouchHeight = 0.5f;
+    public AnimationCurve enterCrouchCurve;
+    public AnimationCurve exitCrouchCurve;
+    public float crouchSpan = 0.2f;
     [Space]
     public float mouseSensitivity = 100f;
     public float minVerticalLookAngle = -80.0f;
@@ -41,7 +45,8 @@ public class DungeonCameraController : MonoBehaviour
     private Camera mainCamera;
 
     private bool IsMoving => moveDirection.magnitude > 0.0001f;
-    private bool IsSprinting => sprintInput && verticalInput >= 0f && IsGrounded && IsMoving;
+    private bool IsSprinting => sprintInput && !crouchInput && verticalInput >= 0f && IsGrounded && IsMoving;
+    private bool IsCrouching => (crouchInput && IsGrounded)/* || iscurrentlycrouching && lowceilingcheck*/;
     private bool IsGrounded => controller.isGrounded;
 
     private float verticalAngle = 0.0f;
@@ -51,12 +56,6 @@ public class DungeonCameraController : MonoBehaviour
     private Transform bobHandler;
     private Vector3 headHeight;
 
-    private bool isCrouching = false;
-    private float defaultHeight;
-    private float verticalVelocity = 0f;
-    private float rollVelocity = 0f;
-
-
     private float horizontalInput;
     private float verticalInput;
     private float mouseX;
@@ -64,9 +63,9 @@ public class DungeonCameraController : MonoBehaviour
 
     private bool jumpInput;
     private bool sprintInput;
+    private bool crouchInput;
 
     private float currentFallForce;
-    private Vector3 verticalVector;
 
     [Header("Debug")]
     public Vector3 DEBUGVelocity = Vector3.zero;
@@ -78,7 +77,6 @@ public class DungeonCameraController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         mainCamera = Camera.main;
-        defaultHeight = controller.height;
         tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
         headHeight = bobHandler.localPosition;
@@ -100,7 +98,7 @@ public class DungeonCameraController : MonoBehaviour
             mouseY = Input.GetAxis("Mouse Y");
 
             jumpInput = Input.GetButton("Jump");
-
+            crouchInput = Input.GetButton("Crouch");
             sprintInput = Input.GetButton("Sprint");
         }
     }
@@ -119,7 +117,8 @@ public class DungeonCameraController : MonoBehaviour
         {
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-            if (IsSprinting) moveDirection = moveDirection * sprintModifier;
+            if (IsCrouching) moveDirection = moveDirection * crouchModifier;
+            else if (IsSprinting) moveDirection = moveDirection * sprintModifier;
 
             DEBUGMoveMagnitude = moveDirection.magnitude;
         }
@@ -170,8 +169,9 @@ public class DungeonCameraController : MonoBehaviour
 
             if (IsGrounded && IsMoving)
             {
-                headBobStopwatch += Time.deltaTime;
-                headBobAmount = Mathf.Sin(1 + headBobStopwatch * headBobFrequency * moveDirection.magnitude) * headBobAmplitude - headBobAmplitude;
+                headBobStopwatch += Time.deltaTime * moveDirection.magnitude;
+                float phaseOffset = 2f * Mathf.PI * headBobFrequency * headBobStopwatch;
+                headBobAmount = Mathf.Cos(phaseOffset) * headBobAmplitude - headBobAmplitude;
             }
             else if (headBobAmount < -0.0001f)
             {
