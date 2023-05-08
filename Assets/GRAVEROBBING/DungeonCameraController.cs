@@ -69,7 +69,7 @@ public class DungeonCameraController : MonoBehaviour
 
     [Header("Debug")]
     public Vector3 DEBUGVelocity = Vector3.zero;
-    public float DEBUGmoveMagnitude = 0f;
+    public float DEBUGMoveMagnitude = 0f;
     public float DEBUGAirTimer = 0f;
 
 
@@ -120,7 +120,7 @@ public class DungeonCameraController : MonoBehaviour
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
             if (sprintInput && (verticalInput > 0f || horizontalInput != 0f) && IsGrounded && IsMoving) moveDirection = moveDirection * sprintModifier;
 
-            DEBUGmoveMagnitude = moveDirection.magnitude;
+            DEBUGMoveMagnitude = moveDirection.magnitude;
         }
 
         void Jumping()
