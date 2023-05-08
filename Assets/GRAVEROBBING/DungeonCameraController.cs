@@ -218,7 +218,7 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (!enableCameraTilt)
             {
-                tiltHandler.rotation = Quaternion.identity;
+                tiltHandler.rotation = bobHandler.rotation;
                 return;
             }
 
