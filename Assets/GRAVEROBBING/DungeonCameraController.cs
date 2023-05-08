@@ -10,10 +10,11 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     public float crouchCameraDrop = 1f;
     public float crouchHeight = 1f;
-    public AnimationCurve enterCrouchCurve;
-    public AnimationCurve exitCrouchCurve;
-    public float crouchUrgency = 10f;
+    public float crouchCeilingOffset = 0.1f;
+    public float crouchSpeed = 10f;
     private float defaultHeight;
+    private LayerMask playerLayer;
+    private bool stayCrouched = false;
     [Space]
     public float mouseSensitivity = 100f;
     public float minVerticalLookAngle = -80.0f;
@@ -46,10 +47,13 @@ public class DungeonCameraController : MonoBehaviour
     private CharacterController controller;
     private Camera mainCamera;
 
-    private bool IsMoving => moveDirection.magnitude > 0.0001f;
-    private bool IsSprinting => sprintInput && !crouchInput && verticalInput >= 0f && IsGrounded && IsMoving;
-    private bool IsCrouching => (crouchInput /*&& IsGrounded*/)/* || iscurrentlycrouching && lowceilingcheck*/;
+    private bool IsMoving => moveDirection.magnitude > 0.001f;
+    private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f && IsGrounded && IsMoving;
+    private bool IsCrouching => crouchInput && IsGrounded;
+        
     private bool IsGrounded => controller.isGrounded;
+    private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
+        crouchCeilingOffset + defaultHeight - controller.height / 2, ~playerLayer, QueryTriggerInteraction.Ignore);
 
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
@@ -75,6 +79,7 @@ public class DungeonCameraController : MonoBehaviour
     public Vector3 DEBUGVelocity = Vector3.zero;
     public float DEBUGMoveMagnitude = 0f;
     public float DEBUGAirTimer = 0f;
+    public bool DEBUGCannotStand;
 
 
     void Start()
@@ -88,12 +93,16 @@ public class DungeonCameraController : MonoBehaviour
         initialCrouchHeight = crouchHandler.transform.localPosition;
         initialHeadBobHeight = bobHandler.localPosition;
 
+        playerLayer = LayerMask.GetMask("Player");
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     void Update()
     {
+        DEBUGCannotStand = CannotStand;
+
         InputDetection();
 
         void InputDetection()
@@ -126,7 +135,7 @@ public class DungeonCameraController : MonoBehaviour
         {
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-            if (IsCrouching) moveDirection = moveDirection * crouchModifier;
+            if (stayCrouched) moveDirection = moveDirection * crouchModifier;
             else if (IsSprinting) moveDirection = moveDirection * sprintModifier;
 
             DEBUGMoveMagnitude = moveDirection.magnitude;
@@ -150,19 +159,25 @@ public class DungeonCameraController : MonoBehaviour
 
         void Crouching()
         {
-            // Nicer Version of Crouching - try to adjust both controller and transform
+            if (stayCrouched && CannotStand) return;
+
+            float targetHeight;
+
             if (IsCrouching)
             {
-                controller.height = crouchHeight;
-                controller.center = new Vector3(0f, crouchHeight / 2, 0);
-                controller.Move(Vector3.forward * controller.minMoveDistance);
+                targetHeight = crouchHeight;
+                stayCrouched = true;
             }
             else
             {
-                controller.height = defaultHeight;
-                controller.center = new Vector3(0f, defaultHeight / 2, 0);
-                controller.Move(Vector3.forward * controller.minMoveDistance);
+                targetHeight = defaultHeight;
+                stayCrouched = false;
             }
+
+            controller.height = targetHeight;
+            controller.center = Vector3.up * targetHeight / 2;
+
+            controller.Move(Vector3.down * controller.minMoveDistance);
         }
     }
 
@@ -174,7 +189,7 @@ public class DungeonCameraController : MonoBehaviour
 
         CameraTilt();
 
-        CrouchCamera(IsCrouching);
+        CrouchCamera();
 
         FieldOfView();
 
@@ -201,7 +216,7 @@ public class DungeonCameraController : MonoBehaviour
                 float phaseOffset = 2f * Mathf.PI * headBobFrequency * headBobStopwatch;
                 headBobAmount = Mathf.Cos(phaseOffset) * headBobAmplitude - headBobAmplitude;
             }
-            else if (headBobAmount < -0.0001f)
+            else if (headBobAmount < -0.001f)
             {
                 headBobStopwatch = 0f;
                 headBobAmount = Mathf.Lerp(headBobAmount, 0f, Time.deltaTime / headBobReturnSpeed);
@@ -231,17 +246,22 @@ public class DungeonCameraController : MonoBehaviour
             tiltHandler.rotation = Quaternion.Lerp(tiltHandler.rotation, targetTilt, Time.deltaTime / cameraTiltSpeed);
         }
 
-        void CrouchCamera(bool isCrouching)
+        void CrouchCamera()
         {
-            Vector3 targetPosition = isCrouching ? initialCrouchHeight - (crouchCameraDrop * Vector3.down) : initialCrouchHeight;
-            crouchHandler.localPosition = Vector3.Lerp(crouchHandler.localPosition, targetPosition, crouchUrgency * Time.deltaTime);
+            Vector3 targetPosition;
+            if (stayCrouched)
+            {
+                targetPosition = initialCrouchHeight - (crouchCameraDrop * Vector3.down);
+            }
+            else
+            {
+                targetPosition = initialCrouchHeight;
+            }
+            
+            crouchHandler.localPosition = Vector3.Lerp(crouchHandler.localPosition, targetPosition, crouchSpeed * Time.deltaTime);
 
-            //Camera neatness and Floating Point Rounding
-            if (Vector3.Distance(crouchHandler.localPosition, initialCrouchHeight) < 0.01f)
-                crouchHandler.localPosition = initialCrouchHeight;
-            else if (Vector3.Distance(crouchHandler.localPosition, targetPosition) < 0.01f)
+            if (Vector3.Distance(crouchHandler.localPosition, targetPosition) < 0.001f)
                 crouchHandler.localPosition = targetPosition;
-
         }
 
         void FieldOfView()
