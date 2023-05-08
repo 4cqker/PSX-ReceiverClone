@@ -41,6 +41,7 @@ public class DungeonCameraController : MonoBehaviour
     private Camera mainCamera;
 
     private bool IsMoving => moveDirection.magnitude > 0.0001f;
+    private bool IsSprinting => sprintInput && verticalInput >= 0f && IsGrounded && IsMoving;
     private bool IsGrounded => controller.isGrounded;
 
     private float verticalAngle = 0.0f;
@@ -118,7 +119,7 @@ public class DungeonCameraController : MonoBehaviour
         {
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-            if (sprintInput && (verticalInput > 0f || horizontalInput != 0f) && IsGrounded && IsMoving) moveDirection = moveDirection * sprintModifier;
+            if (IsSprinting) moveDirection = moveDirection * sprintModifier;
 
             DEBUGMoveMagnitude = moveDirection.magnitude;
         }
@@ -210,7 +211,7 @@ public class DungeonCameraController : MonoBehaviour
                 return;
             }
 
-            float targetFOV = sprintInput && IsGrounded && IsMoving ? sprintFOV : defaultFOV;
+            float targetFOV = IsSprinting ? sprintFOV : defaultFOV;
             mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, targetFOV, Time.deltaTime / FOVChangeSpeed);
         }
     }   
