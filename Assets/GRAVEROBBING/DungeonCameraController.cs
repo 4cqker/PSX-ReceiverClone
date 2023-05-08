@@ -12,6 +12,7 @@ public class DungeonCameraController : MonoBehaviour
     public AnimationCurve enterCrouchCurve;
     public AnimationCurve exitCrouchCurve;
     public float crouchSpan = 0.2f;
+    private float defaultHeight;
     [Space]
     public float mouseSensitivity = 100f;
     public float minVerticalLookAngle = -80.0f;
@@ -46,7 +47,7 @@ public class DungeonCameraController : MonoBehaviour
 
     private bool IsMoving => moveDirection.magnitude > 0.0001f;
     private bool IsSprinting => sprintInput && !crouchInput && verticalInput >= 0f && IsGrounded && IsMoving;
-    private bool IsCrouching => (crouchInput && IsGrounded)/* || iscurrentlycrouching && lowceilingcheck*/;
+    private bool IsCrouching => (crouchInput /*&& IsGrounded*/)/* || iscurrentlycrouching && lowceilingcheck*/;
     private bool IsGrounded => controller.isGrounded;
 
     private float verticalAngle = 0.0f;
@@ -76,6 +77,7 @@ public class DungeonCameraController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        defaultHeight = controller.height;
         mainCamera = Camera.main;
         tiltHandler = mainCamera.transform.parent;
         bobHandler = tiltHandler.parent;
@@ -109,6 +111,8 @@ public class DungeonCameraController : MonoBehaviour
 
         Jumping();
 
+        Crouching();
+
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
 
         DEBUGVelocity = controller.velocity;
@@ -137,7 +141,21 @@ public class DungeonCameraController : MonoBehaviour
 
                 DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
             }
-        }    
+        }
+
+        void Crouching()
+        {
+            if (IsCrouching)
+            {
+                controller.height = crouchHeight;
+                controller.center = new Vector3(0f, crouchHeight / 2, 0);
+            }
+            else
+            {
+                controller.height = defaultHeight;
+                controller.center = new Vector3(0f, defaultHeight / 2, 0);
+            }
+        }
     }
 
     private void LateUpdate()

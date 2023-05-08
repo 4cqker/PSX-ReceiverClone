@@ -2037,6 +2037,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8988405827919803561, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: m_Height
+      value: 1.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: m_Center.y
+      value: 0.85
+      objectReference: {fileID: 0}
+    - target: {fileID: 8988405828425450976, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
+      propertyPath: m_SkinWidth
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450979, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: m_Name
       value: Player Holder
@@ -2047,7 +2063,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450990, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 8988405828425450990, guid: 5129aafe8e1d19b4da535e9949472845, type: 3}
       propertyPath: m_LocalPosition.z
