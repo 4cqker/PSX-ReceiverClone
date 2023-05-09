@@ -143,19 +143,8 @@ MonoBehaviour:
   crouchModifier: 0.65
   crouchCameraDrop: -1
   crouchHeight: 0.7
-  enterCrouchCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  exitCrouchCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  crouchUrgency: 10
+  crouchCeilingOffset: -0.2
+  crouchSpeed: 10
   mouseSensitivity: 2
   minVerticalLookAngle: -80
   maxVerticalLookAngle: 80
@@ -202,6 +191,7 @@ MonoBehaviour:
   DEBUGVelocity: {x: 0, y: 0, z: 0}
   DEBUGMoveMagnitude: 0
   DEBUGAirTimer: 0
+  DEBUGCannotStand: 0
 --- !u!143 &8988405828425450976
 CharacterController:
   m_ObjectHideFlags: 0

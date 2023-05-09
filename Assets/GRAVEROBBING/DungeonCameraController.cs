@@ -4,82 +4,80 @@ using UnityEngine;
 public class DungeonCameraController : MonoBehaviour
 {
     [Header("Locomotion")]
-    public float movementSpeed = 5f;
-    public float sprintModifier = 1.2f;
-    public float crouchModifier = 0.65f;
+    [SerializeField] private float movementSpeed = 5f;
+    [SerializeField] private float sprintModifier = 1.2f;
+    [SerializeField] private float crouchModifier = 0.65f;
     [Space]
-    public float crouchCameraDrop = 1f;
-    public float crouchHeight = 1f;
-    public float crouchCeilingOffset = 0.1f;
-    public float crouchSpeed = 10f;
+    [SerializeField] private float crouchCameraDrop = 1f;
+    [SerializeField] private float crouchHeight = 1f;
+    [SerializeField] private float crouchCeilingOffset = 0.1f;
+    [SerializeField] private float crouchSpeed = 10f;
+
     private float defaultHeight;
     private LayerMask playerLayer;
     private bool stayCrouched = false;
     [Space]
-    public float mouseSensitivity = 100f;
-    public float minVerticalLookAngle = -80.0f;
-    public float maxVerticalLookAngle = 80.0f;
+    [SerializeField] private float mouseSensitivity = 100f;
+    [SerializeField] private float minVerticalLookAngle = -80.0f;
+    [SerializeField] private float maxVerticalLookAngle = 80.0f;
     [Space]
-    public float groundedGravity = 9.81f;
-    public AnimationCurve gravityFallCurve;
-    public bool invertFallCurve;
-    public float terminalVelocity = 55.55f;
-    public float terminalVelocitySpan = 3f;
-    public float jumpForce = 2f;
+    [SerializeField] private float groundedGravity = 9.81f;
+    [SerializeField] private AnimationCurve gravityFallCurve;
+    [SerializeField] private bool invertFallCurve;
+    [SerializeField] private float terminalVelocity = 55.55f;
+    [SerializeField] private float terminalVelocitySpan = 3f;
+    [SerializeField] private float jumpForce = 2f;
     [Space]
     [Header("Camera")]
-    public float headBobAmplitude = 1.3f;
-    public float headBobFrequency = 1.3f;
-    public float headBobReturnSpeed = 0.1f;
-    public bool enableHeadbob = true;
+    [SerializeField] private float headBobAmplitude = 1.3f;
+    [SerializeField] private float headBobFrequency = 1.3f;
+    [SerializeField] private float headBobReturnSpeed = 0.1f;
+    [SerializeField] private bool enableHeadbob = true;
+
     private float headBobAmount = 0f;
     private float headBobStopwatch = 0f;
     [Space]
-    public float cameraTiltAngle = 15f;
-    public float cameraTiltSpeed = 0.1f;
-    public bool enableCameraTilt = true;
+    [SerializeField] private float cameraTiltAngle = 15f;
+    [SerializeField] private float cameraTiltSpeed = 0.1f;
+    [SerializeField] private bool enableCameraTilt = true;
     [Space]
-    public float defaultFOV = 75f;
-    public float sprintFOV = 90f;
-    public float FOVChangeSpeed = 0.1f;
-    public bool enableFOVChange = true;
-
-    private CharacterController controller;
-    private Camera mainCamera;
+    [SerializeField] private float defaultFOV = 75f;
+    [SerializeField] private float sprintFOV = 90f;
+    [SerializeField] private float FOVChangeSpeed = 0.1f;
+    [SerializeField] private bool enableFOVChange = true;
 
     private bool IsMoving => moveDirection.magnitude > 0.001f;
     private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f && IsGrounded && IsMoving;
-    private bool IsCrouching => crouchInput && IsGrounded;
-        
     private bool IsGrounded => controller.isGrounded;
     private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
         crouchCeilingOffset + defaultHeight - controller.height / 2, ~playerLayer, QueryTriggerInteraction.Ignore);
 
-    private float verticalAngle = 0.0f;
-    private float horizontalAngle = 0.0f;
-    private Vector3 moveDirection;
+    private CharacterController controller;
+    private Camera mainCamera;
     private Transform tiltHandler;
     private Transform bobHandler;
     private Transform crouchHandler;
     private Vector3 initialCrouchHeight;
     private Vector3 initialHeadBobHeight;
 
+    private float verticalAngle = 0.0f;
+    private float horizontalAngle = 0.0f;
+    private float currentFallForce;
+    private Vector3 moveDirection;
+
     private float horizontalInput;
     private float verticalInput;
-    private float mouseX;
-    private float mouseY;
-
+    private float mouseXInput;
+    private float mouseYInput;
     private bool jumpInput;
     private bool sprintInput;
     private bool crouchInput;
 
-    private float currentFallForce;
-
     [Header("Debug")]
-    public Vector3 DEBUGVelocity = Vector3.zero;
-    public float DEBUGMoveMagnitude = 0f;
-    public float DEBUGAirTimer = 0f;
-    public bool DEBUGCannotStand;
+    [SerializeField] private Vector3 DEBUGVelocity = Vector3.zero;
+    [SerializeField] private float DEBUGMoveMagnitude = 0f;
+    [SerializeField] private float DEBUGAirTimer = 0f;
+    [SerializeField] private bool DEBUGCannotStand;
 
 
     void Start()
@@ -110,8 +108,8 @@ public class DungeonCameraController : MonoBehaviour
             horizontalInput = Input.GetAxisRaw("Horizontal");
             verticalInput = Input.GetAxisRaw("Vertical");
 
-            mouseX = Input.GetAxis("Mouse X");
-            mouseY = Input.GetAxis("Mouse Y");
+            mouseXInput = Input.GetAxis("Mouse X");
+            mouseYInput = Input.GetAxis("Mouse Y");
 
             jumpInput = Input.GetButton("Jump");
             crouchInput = Input.GetButton("Crouch");
@@ -163,7 +161,7 @@ public class DungeonCameraController : MonoBehaviour
 
             float targetHeight;
 
-            if (IsCrouching)
+            if (crouchInput && IsGrounded)
             {
                 targetHeight = crouchHeight;
                 stayCrouched = true;
@@ -195,8 +193,8 @@ public class DungeonCameraController : MonoBehaviour
 
         void MouseLooking()
         {
-            horizontalAngle += mouseX * mouseSensitivity;
-            verticalAngle -= mouseY * mouseSensitivity;
+            horizontalAngle += mouseXInput * mouseSensitivity;
+            verticalAngle -= mouseYInput * mouseSensitivity;
             verticalAngle = Mathf.Clamp(verticalAngle, minVerticalLookAngle, maxVerticalLookAngle);
             transform.localRotation = Quaternion.Euler(transform.localRotation.x, horizontalAngle, transform.localRotation.z);
             bobHandler.localRotation = Quaternion.Euler(verticalAngle, bobHandler.localRotation.y, bobHandler.localRotation.z);
