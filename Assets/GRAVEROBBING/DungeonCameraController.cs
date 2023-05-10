@@ -12,7 +12,7 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private float crouchHeight = 1f;
     [SerializeField] private float crouchCeilingOffset = 0.1f;
     [SerializeField] private float crouchSpeed = 10f;
-
+    
     private float defaultHeight;
     private LayerMask playerLayer;
     private bool stayCrouched = false;
@@ -26,7 +26,12 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private bool invertFallCurve;
     [SerializeField] private float terminalVelocity = 55.55f;
     [SerializeField] private float terminalVelocitySpan = 3f;
-    [SerializeField] private float jumpForce = 2f;
+    [SerializeField] private float jumpForce = 2f; //j
+    [SerializeField] private float jumpDuration = 0.8f; //j
+    [SerializeField] private AnimationCurve jumpCurve; //j
+
+    private float fallAirTimer = 0f;
+    private float jumpAirTimer = 0f;
     [Space]
     [Header("Camera")]
     [SerializeField] private float headBobAmplitude = 1.3f;
@@ -76,7 +81,6 @@ public class DungeonCameraController : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private Vector3 DEBUGVelocity = Vector3.zero;
     [SerializeField] private float DEBUGMoveMagnitude = 0f;
-    [SerializeField] private float DEBUGAirTimer = 0f;
     [SerializeField] private bool DEBUGCannotStand;
 
 
@@ -126,7 +130,6 @@ public class DungeonCameraController : MonoBehaviour
         Crouching();
 
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
-
         DEBUGVelocity = controller.velocity;
 
         void Moving()
@@ -144,15 +147,23 @@ public class DungeonCameraController : MonoBehaviour
             if (IsGrounded)
             {            
                 currentFallForce = -Mathf.Abs(groundedGravity);
-
-                DEBUGAirTimer = 0f;
+                //jumpAirTimer = jumpInput ? jumpDuration : 0f; //j
+                fallAirTimer = 0f;
             }
+            /*else if (jumpAirTimer > 0.02f) //j
+            { 
+                currentFallForce = jumpCurve.Evaluate(jumpAirTimer) * jumpForce; //j
+                jumpAirTimer -= Time.fixedDeltaTime; //j
+                if (IsGrounded) jumpAirTimer = 0f; //j
+            }*/
             else
-            {              
-                currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(DEBUGAirTimer - 1) : DEBUGAirTimer) * terminalVelocity;
-
-                DEBUGAirTimer = Mathf.Clamp01(DEBUGAirTimer + Time.deltaTime / terminalVelocitySpan);
+            {
+                currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(fallAirTimer - 1) : fallAirTimer) * terminalVelocity;
+                fallAirTimer = Mathf.Clamp01(fallAirTimer + Time.deltaTime / terminalVelocitySpan);
             }
+            //j We may not need two different timers, Rhys recommends just using the one currentFallForce equation and accounting for jumping in it. 
+            //We can do this by having an if statement that asks if the jump timer is not yet 0; if it isn't, we apply the jump curve instead of the
+            //fall curve, or perhaps just use a modifier that makes the evaluate output positive.
         }
 
         void Crouching()
