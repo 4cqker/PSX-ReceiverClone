@@ -176,7 +176,32 @@ MonoBehaviour:
   invertFallCurve: 0
   terminalVelocity: 55.55
   terminalVelocitySpan: 12
-  jumpForce: 12
+  jumpForce: 60
+  jumpDuration: 0.25
+  jumpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -3.0072532
+      outSlope: -3.0072532
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.0665799
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   headBobAmplitude: 0.05
   headBobFrequency: 2
   headBobReturnSpeed: 0.1
@@ -190,7 +215,6 @@ MonoBehaviour:
   enableFOVChange: 1
   DEBUGVelocity: {x: 0, y: 0, z: 0}
   DEBUGMoveMagnitude: 0
-  DEBUGAirTimer: 0
   DEBUGCannotStand: 0
 --- !u!143 &8988405828425450976
 CharacterController:

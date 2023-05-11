@@ -23,7 +23,7 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     [SerializeField] private float groundedGravity = 9.81f;
     [SerializeField] private AnimationCurve gravityFallCurve;
-    [SerializeField] private bool invertFallCurve;
+    [SerializeField] private bool invertFallCurve = false;
     [SerializeField] private float terminalVelocity = 55.55f;
     [SerializeField] private float terminalVelocitySpan = 3f;
     [SerializeField] private float jumpForce = 2f; //j
@@ -147,19 +147,29 @@ public class DungeonCameraController : MonoBehaviour
             if (IsGrounded)
             {            
                 currentFallForce = -Mathf.Abs(groundedGravity);
-                //jumpAirTimer = jumpInput ? jumpDuration : 0f; //j
                 fallAirTimer = 0f;
+                jumpAirTimer = 1f;
+                if (jumpInput)
+                {
+                    jumpAirTimer = 0f;
+                    //Enable and Begin Jumping Ascent????? How do we unground the player here?
+                    currentFallForce = jumpCurve.Evaluate(jumpAirTimer);
+                    //Maybe we just do the first evaluation step of the jump. That could be enough movement to unground the player.
+                }
             }
-            /*else if (jumpAirTimer > 0.02f) //j
-            { 
-                currentFallForce = jumpCurve.Evaluate(jumpAirTimer) * jumpForce; //j
-                jumpAirTimer -= Time.fixedDeltaTime; //j
-                if (IsGrounded) jumpAirTimer = 0f; //j
-            }*/
             else
             {
-                currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(fallAirTimer - 1) : fallAirTimer) * terminalVelocity;
-                fallAirTimer = Mathf.Clamp01(fallAirTimer + Time.deltaTime / terminalVelocitySpan);
+                if (jumpAirTimer < 1)
+                {
+                    //calculate jumping Ascent continuation until jumpAirTimer reaches limit
+                    currentFallForce = jumpCurve.Evaluate(jumpAirTimer);
+                    jumpAirTimer = Mathf.Clamp01(jumpAirTimer + Time.fixedDeltaTime / jumpDuration);
+                }
+                else
+                {
+                    currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(fallAirTimer - 1) : fallAirTimer) * terminalVelocity;
+                    fallAirTimer = Mathf.Clamp01(fallAirTimer + Time.deltaTime / terminalVelocitySpan);
+                }
             }
             //j We may not need two different timers, Rhys recommends just using the one currentFallForce equation and accounting for jumping in it. 
             //We can do this by having an if statement that asks if the jump timer is not yet 0; if it isn't, we apply the jump curve instead of the
