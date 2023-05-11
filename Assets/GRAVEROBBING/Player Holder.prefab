@@ -175,30 +175,48 @@ MonoBehaviour:
     m_RotationOrder: 4
   invertFallCurve: 0
   terminalVelocity: 55.55
-  terminalVelocitySpan: 12
-  jumpForce: 60
-  jumpDuration: 0.25
+  terminalVelocitySpan: 16
+  jumpForce: 2.5
+  jumpDuration: 0.3
   jumpCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -0.047169924
+      outSlope: -0.047169924
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.33333334
+      outWeight: 0.3041386
+    - serializedVersion: 3
+      time: 0.45847604
+      value: 0.8375294
+      inSlope: -1.1560622
+      outSlope: -1.1560622
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.19834974
+      outWeight: 0.18907264
+    - serializedVersion: 3
+      time: 0.69771886
+      value: 0.38054615
+      inSlope: -2.616573
+      outSlope: -2.616573
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.14970346
+      outWeight: 0.057312116
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -3.0072532
-      outSlope: -3.0072532
+      inSlope: -0.121000774
+      outSlope: -0.121000774
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.0665799
-      outWeight: 0.33333334
+      inWeight: 0.0584746
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4

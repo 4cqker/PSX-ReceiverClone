@@ -162,7 +162,7 @@ public class DungeonCameraController : MonoBehaviour
                 if (jumpAirTimer < 1)
                 {
                     //calculate jumping Ascent continuation until jumpAirTimer reaches limit
-                    currentFallForce = jumpCurve.Evaluate(jumpAirTimer);
+                    currentFallForce = jumpCurve.Evaluate(jumpAirTimer) * jumpForce;
                     jumpAirTimer = Mathf.Clamp01(jumpAirTimer + Time.fixedDeltaTime / jumpDuration);
                 }
                 else
