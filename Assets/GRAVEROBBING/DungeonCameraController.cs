@@ -52,7 +52,7 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private bool enableFOVChange = true;
 
     private bool IsMoving => moveDirection.magnitude > 0.001f;
-    private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f && (IsGrounded || jumpAirTimer < 1) && IsMoving;
+    private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f /*&& (IsGrounded || jumpAirTimer < 1)*/ && IsMoving;
     private bool IsGrounded => controller.isGrounded;
     private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
         crouchCeilingOffset + defaultHeight - controller.height / 2, ~playerLayer, QueryTriggerInteraction.Ignore);
