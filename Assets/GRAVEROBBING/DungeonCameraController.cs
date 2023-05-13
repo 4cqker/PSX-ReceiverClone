@@ -194,6 +194,17 @@ public class DungeonCameraController : MonoBehaviour
             //j We may not need two different timers, Rhys recommends just using the one currentFallForce equation and accounting for jumping in it. 
             //We can do this by having an if statement that asks if the jump timer is not yet 0; if it isn't, we apply the jump curve instead of the
             //fall curve, or perhaps just use a modifier that makes the evaluate output positive.
+
+            // Somewhere in here we'll also have to implement Sliding down surfaces. 
+            // Make a ray that goes from transform downward
+            // get ray info, specifically hit.normal
+            // compare that vector to Vector3.up
+            // If it's more severe than a determined slope limit, 
+            // use a planar vector (quarternions ughhh) that is perpendicular to the slope,
+            // Apply that vector to the player using Controller.Move.
+
+            //ONCE WE HAVE THIS, WE CAN USE IT FOR ALL SLOPE FIXING, INCLUDING REGULAR WALKING! - NO MORE STATIC GRAVITY APPLICATION
+
         }
 
         void Crouching()
