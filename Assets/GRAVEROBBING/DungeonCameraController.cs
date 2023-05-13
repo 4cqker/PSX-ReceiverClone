@@ -28,10 +28,12 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private float terminalVelocitySpan = 3f;
     [SerializeField] private float jumpForce = 2f; //j
     [SerializeField] private float jumpDuration = 0.8f; //j
+    [SerializeField] private float jumpCooldown => jumpDuration / 2; //j
     [SerializeField] private AnimationCurve jumpCurve; //j
 
     private float fallAirTimer = 0f;
     private float jumpAirTimer = 0f;
+    private float jumpCooldownTimer = 0f;
     [Space]
     [Header("Camera")]
     [SerializeField] private float headBobAmplitude = 1.3f;
@@ -56,6 +58,9 @@ public class DungeonCameraController : MonoBehaviour
     private bool IsGrounded => controller.isGrounded;
     private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
         crouchCeilingOffset + defaultHeight - controller.height / 2, ~playerLayer, QueryTriggerInteraction.Ignore);
+
+    private bool CeilingAboveHead => Physics.Raycast(transform.position + controller.center, Vector3.up, 
+        controller.height / 2 + Mathf.Abs(crouchCeilingOffset), ~playerLayer, QueryTriggerInteraction.Ignore);
 
     private CharacterController controller;
     private Camera mainCamera;
@@ -99,6 +104,16 @@ public class DungeonCameraController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        SettlePlayer();
+
+        void SettlePlayer()
+        {
+            Ray downRay = new Ray(transform.position, Vector3.down);
+            RaycastHit hit;
+            Physics.Raycast(downRay, out hit, 100f, ~playerLayer, QueryTriggerInteraction.Ignore);
+            controller.Move(new Vector3(0, -hit.distance, 0));
+        }
     }
 
     void Update()
@@ -144,31 +159,36 @@ public class DungeonCameraController : MonoBehaviour
 
         void Jumping()
         {
+
+            jumpCooldownTimer -= Time.fixedDeltaTime;
+
             if (IsGrounded)
             {            
                 currentFallForce = -Mathf.Abs(groundedGravity);
                 fallAirTimer = 0f;
                 jumpAirTimer = 1f;
-                if (jumpInput)
+                if (jumpInput && !CeilingAboveHead && jumpCooldownTimer <= 0f)
                 {
                     jumpAirTimer = 0f;
-                    //Enable and Begin Jumping Ascent????? How do we unground the player here?
+                    jumpCooldownTimer = jumpCooldown;
                     currentFallForce = jumpCurve.Evaluate(jumpAirTimer);
-                    //Maybe we just do the first evaluation step of the jump. That could be enough movement to unground the player.
                 }
             }
             else
             {
                 if (jumpAirTimer < 1)
                 {
-                    //calculate jumping Ascent continuation until jumpAirTimer reaches limit
+                    if (CeilingAboveHead)
+                    {
+                        jumpAirTimer = 1f;
+                    }
                     currentFallForce = jumpCurve.Evaluate(jumpAirTimer) * jumpForce;
                     jumpAirTimer = Mathf.Clamp01(jumpAirTimer + Time.fixedDeltaTime / jumpDuration);
                 }
                 else
                 {
                     currentFallForce = -gravityFallCurve.Evaluate(invertFallCurve ? Mathf.Abs(fallAirTimer - 1) : fallAirTimer) * terminalVelocity;
-                    fallAirTimer = Mathf.Clamp01(fallAirTimer + Time.deltaTime / terminalVelocitySpan);
+                    fallAirTimer = Mathf.Clamp01(fallAirTimer + Time.fixedDeltaTime / terminalVelocitySpan);
                 }
             }
             //j We may not need two different timers, Rhys recommends just using the one currentFallForce equation and accounting for jumping in it. 
