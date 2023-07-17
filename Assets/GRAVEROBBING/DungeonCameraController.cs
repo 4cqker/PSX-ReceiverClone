@@ -14,7 +14,10 @@ public class DungeonCameraController : MonoBehaviour
     [Space]
     [SerializeField] private float rappelSpeed = 2.5f;
     [SerializeField] private float rappelAngle = 10f;
+    [SerializeField] private float rappelStopDistance = 0.5f;
+    public float rappelHoldDistance = 0.25f;
     [HideInInspector] public bool isRappelling;
+    [HideInInspector] public Rope currentRope;
     [Space]
     [SerializeField] private float crouchCameraDrop = 1f;
     [SerializeField] private float crouchHeight = 1f;
@@ -36,7 +39,7 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private float terminalVelocitySpan = 3f;
     [SerializeField] private float jumpForce = 2f; //j
     [SerializeField] private float jumpDuration = 0.8f; //j
-    [SerializeField] private float jumpCooldown => jumpDuration / 2; //j
+    private float jumpCooldown => jumpDuration / 2; //j
     [SerializeField] private AnimationCurve jumpCurve; //j
 
     private float fallAirTimer = 0f;
@@ -61,7 +64,7 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private float FOVChangeSpeed = 0.1f;
     [SerializeField] private bool enableFOVChange = true;
 
-    private bool IsMoving => moveDirection.magnitude > 0.001f;
+    private bool IsMoving => moveVector.magnitude > 0.001f;
     private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f && IsMoving;
     private bool IsGrounded => controller.isGrounded;
     private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
@@ -70,7 +73,7 @@ public class DungeonCameraController : MonoBehaviour
     private bool CeilingAboveHead => Physics.Raycast(transform.position + controller.center, Vector3.up, 
         controller.height / 2 + Mathf.Abs(crouchCeilingOffset), ~playerLayer, QueryTriggerInteraction.Ignore);
 
-    private CharacterController controller;
+    [HideInInspector] public CharacterController controller;
     private Camera mainCamera;
     private Transform tiltHandler;
     private Transform bobHandler;
@@ -81,7 +84,7 @@ public class DungeonCameraController : MonoBehaviour
     private float verticalAngle = 0.0f;
     private float horizontalAngle = 0.0f;
     private float currentFallForce;
-    private Vector3 moveDirection;
+    private Vector3 moveVector;
 
     private float horizontalInput;
     private float verticalInput;
@@ -156,16 +159,23 @@ public class DungeonCameraController : MonoBehaviour
 
         void Interaction()
         {
-            if(Physics.SphereCast(mainCamera.transform.position, interactionRadius, mainCamera.transform.forward, out RaycastHit hitInfo, interactionDistance, ~playerLayer, QueryTriggerInteraction.Collide))
+            if (interactInput)
             {
-                if (hitInfo.transform.TryGetComponent(out IInteractable interactable))
+                if (isRappelling)
                 {
-                    if (interactInput)
+                    isRappelling = false;
+                    currentRope = null;
+                    return;
+                }
+
+                if (Physics.SphereCast(mainCamera.transform.position, interactionRadius, mainCamera.transform.forward, out RaycastHit hitInfo, interactionDistance, ~playerLayer, QueryTriggerInteraction.Collide))
+                {
+                    if (hitInfo.transform.TryGetComponent(out IInteractable interactable))
                     {
                         interactable.Interact();
                     }
                 }
-            }
+            }         
         }
     }
 
@@ -180,7 +190,7 @@ public class DungeonCameraController : MonoBehaviour
         Moving();
 
         if (isRappelling) return;
-        controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
+        controller.Move(new Vector3(moveVector.x, currentFallForce, moveVector.z) * movementSpeed * Time.deltaTime);
         DEBUGVelocity = controller.velocity;
 
         void Rappelling()
@@ -188,24 +198,29 @@ public class DungeonCameraController : MonoBehaviour
             if (isRappelling)
             {
                 float angle = Vector3.SignedAngle(transform.forward, mainCamera.transform.forward, transform.right);
+
+                Vector3 lookDirection = Vector3.zero;
+
                 if (angle > rappelAngle)
                 {
-                    Vector3 direction = Vector3.down * verticalInput;
-                    controller.Move(direction * rappelSpeed * Time.deltaTime);
+                    lookDirection = Vector3.down;
                 }
                 else if (angle < -rappelAngle)
                 {
-                    Vector3 direction = Vector3.up * verticalInput;
-                    controller.Move(direction * rappelSpeed * Time.deltaTime);
+                    lookDirection = Vector3.up;
                 }
+                Vector3 moveDirection = lookDirection * verticalInput;
 
-                //Get view angle on x rotational axis
-                //if angle is above range, "w" is up and "s" is down
-                //if angle is below range, the opposite is true
-                //if angle is between range, nothing happens
-                //apply rappel speed
+                Transform ropeLimit = moveDirection.y > 0f ? currentRope.top : currentRope.bottom;
 
-                //Also implement letting go of rope with "e"
+                if (Vector3.Distance(mainCamera.transform.position, ropeLimit.position) > rappelStopDistance)
+                {
+                    controller.Move(moveDirection * rappelSpeed * Time.deltaTime);
+                }
+                
+                //BUG: Holding space while entering rappel will immediately launch the player off
+                //BUG: Should grasp a rope from lower when interacting under it. Currently moves the player's feet to the base of the rope.
+                //FEATURE: Launch in direction while jumping (including off a rope)
             }
         }
 
@@ -222,6 +237,7 @@ public class DungeonCameraController : MonoBehaviour
                 if (jumpInput && !CeilingAboveHead && jumpCooldownTimer <= 0f)
                 {
                     isRappelling = false;
+                    currentRope = null;
 
                     jumpAirTimer = 0f;
                     jumpCooldownTimer = jumpCooldown;
@@ -294,11 +310,11 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (isRappelling) return;
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-            if (stayCrouched) moveDirection = moveDirection * crouchModifier;
-            else if (IsSprinting) moveDirection = moveDirection * sprintModifier;
+            moveVector = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
+            if (stayCrouched) moveVector = moveVector * crouchModifier;
+            else if (IsSprinting) moveVector = moveVector * sprintModifier;
 
-            DEBUGMoveMagnitude = moveDirection.magnitude;
+            DEBUGMoveMagnitude = moveVector.magnitude;
         }
     }
 
@@ -333,7 +349,7 @@ public class DungeonCameraController : MonoBehaviour
 
             if (IsGrounded && IsMoving)
             {
-                headBobStopwatch += Time.deltaTime * moveDirection.magnitude;
+                headBobStopwatch += Time.deltaTime * moveVector.magnitude;
                 float phaseOffset = 2f * Mathf.PI * headBobFrequency * headBobStopwatch;
                 headBobAmount = Mathf.Cos(phaseOffset) * headBobAmplitude - headBobAmplitude;
             }
