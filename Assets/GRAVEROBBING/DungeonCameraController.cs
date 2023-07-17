@@ -1,12 +1,20 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
+[DisallowMultipleComponent]
 public class DungeonCameraController : MonoBehaviour
 {
+    [Header("Interaction")]
+    [SerializeField] private float interactionDistance = 2f;
+    [SerializeField] private float interactionRadius = 0.2f;
+    [Space]
     [Header("Locomotion")]
     [SerializeField] private float movementSpeed = 5f;
     [SerializeField] private float sprintModifier = 1.2f;
     [SerializeField] private float crouchModifier = 0.65f;
+    [Space]
+    [SerializeField] private float rappelSpeed;
+
+    [HideInInspector] public bool isRappelling;
     [Space]
     [SerializeField] private float crouchCameraDrop = 1f;
     [SerializeField] private float crouchHeight = 1f;
@@ -54,7 +62,7 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private bool enableFOVChange = true;
 
     private bool IsMoving => moveDirection.magnitude > 0.001f;
-    private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f /*&& (IsGrounded || jumpAirTimer < 1)*/ && IsMoving;
+    private bool IsSprinting => sprintInput && !stayCrouched && verticalInput >= 0f && IsMoving;
     private bool IsGrounded => controller.isGrounded;
     private bool CannotStand => Physics.SphereCast(transform.position + controller.center, controller.radius, Vector3.up, out RaycastHit hitInfo,
         crouchCeilingOffset + defaultHeight - controller.height / 2, ~playerLayer, QueryTriggerInteraction.Ignore);
@@ -83,11 +91,18 @@ public class DungeonCameraController : MonoBehaviour
     private bool sprintInput;
     private bool crouchInput;
 
+    private bool interactInput;
+
     [Header("Debug")]
     [SerializeField] private Vector3 DEBUGVelocity = Vector3.zero;
     [SerializeField] private float DEBUGMoveMagnitude = 0f;
     [SerializeField] private bool DEBUGCannotStand;
 
+    public static DungeonCameraController Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -122,6 +137,8 @@ public class DungeonCameraController : MonoBehaviour
 
         InputDetection();
 
+        Interaction();
+
         void InputDetection()
         {
             horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -133,42 +150,66 @@ public class DungeonCameraController : MonoBehaviour
             jumpInput = Input.GetButton("Jump");
             crouchInput = Input.GetButton("Crouch");
             sprintInput = Input.GetButton("Sprint");
+
+            interactInput = Input.GetButtonDown("Interact");
+        }
+
+        void Interaction()
+        {
+            if(Physics.SphereCast(mainCamera.transform.position, interactionRadius, mainCamera.transform.forward, out RaycastHit hitInfo, interactionDistance, ~playerLayer, QueryTriggerInteraction.Collide))
+            {
+                if (hitInfo.transform.TryGetComponent(out IInteractable interactable))
+                {
+                    if (interactInput)
+                    {
+                        interactable.Interact();
+                    }
+                }
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        Moving();
+        Rappelling();
 
         Jumping();
 
         Crouching();
 
+        Moving();
+
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
         DEBUGVelocity = controller.velocity;
 
-        void Moving()
+        void Rappelling()
         {
-            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
-            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
-            if (stayCrouched) moveDirection = moveDirection * crouchModifier;
-            else if (IsSprinting) moveDirection = moveDirection * sprintModifier;
+            if (isRappelling)
+            {
+                //Get view angle on x rotational axis
+                //if angle is above range, "w" is up and "s" is down
+                //if angle is below range, the opposite is true
+                //if angle is between range, nothing happens
+                //apply rappel speed
 
-            DEBUGMoveMagnitude = moveDirection.magnitude;
+                //Also implement letting go of rope with "e"
+            }
         }
 
         void Jumping()
         {
 
-            jumpCooldownTimer -= Time.fixedDeltaTime;
+            if (!isRappelling) jumpCooldownTimer -= Time.fixedDeltaTime;
 
-            if (IsGrounded)
+            if (IsGrounded || isRappelling)
             {            
-                currentFallForce = -Mathf.Abs(groundedGravity);
+                currentFallForce = isRappelling ? 0f : -Mathf.Abs(groundedGravity);
                 fallAirTimer = 0f;
                 jumpAirTimer = 1f;
                 if (jumpInput && !CeilingAboveHead && jumpCooldownTimer <= 0f)
                 {
+                    isRappelling = false;
+
                     jumpAirTimer = 0f;
                     jumpCooldownTimer = jumpCooldown;
                     currentFallForce = jumpCurve.Evaluate(jumpAirTimer);
@@ -176,6 +217,12 @@ public class DungeonCameraController : MonoBehaviour
             }
             else
             {
+                if (isRappelling)
+                {
+                    currentFallForce = 0f;
+                    return;
+                }
+
                 if (jumpAirTimer < 1)
                 {
                     if (CeilingAboveHead)
@@ -213,7 +260,7 @@ public class DungeonCameraController : MonoBehaviour
 
             float targetHeight;
 
-            if (crouchInput && IsGrounded)
+            if (crouchInput && IsGrounded && !isRappelling)
             {
                 targetHeight = crouchHeight;
                 stayCrouched = true;
@@ -228,6 +275,16 @@ public class DungeonCameraController : MonoBehaviour
             controller.center = Vector3.up * targetHeight / 2;
 
             controller.Move(Vector3.down * controller.minMoveDistance);
+        }
+
+        void Moving()
+        {
+            Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
+            moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
+            if (stayCrouched) moveDirection = moveDirection * crouchModifier;
+            else if (IsSprinting) moveDirection = moveDirection * sprintModifier;
+
+            DEBUGMoveMagnitude = moveDirection.magnitude;
         }
     }
 
