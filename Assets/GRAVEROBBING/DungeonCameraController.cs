@@ -12,8 +12,8 @@ public class DungeonCameraController : MonoBehaviour
     [SerializeField] private float sprintModifier = 1.2f;
     [SerializeField] private float crouchModifier = 0.65f;
     [Space]
-    [SerializeField] private float rappelSpeed;
-
+    [SerializeField] private float rappelSpeed = 2.5f;
+    [SerializeField] private float rappelAngle = 10f;
     [HideInInspector] public bool isRappelling;
     [Space]
     [SerializeField] private float crouchCameraDrop = 1f;
@@ -179,6 +179,7 @@ public class DungeonCameraController : MonoBehaviour
 
         Moving();
 
+        if (isRappelling) return;
         controller.Move(new Vector3(moveDirection.x, currentFallForce, moveDirection.z) * movementSpeed * Time.deltaTime);
         DEBUGVelocity = controller.velocity;
 
@@ -186,6 +187,18 @@ public class DungeonCameraController : MonoBehaviour
         {
             if (isRappelling)
             {
+                float angle = Vector3.SignedAngle(transform.forward, mainCamera.transform.forward, transform.right);
+                if (angle > rappelAngle)
+                {
+                    Vector3 direction = Vector3.down * verticalInput;
+                    controller.Move(direction * rappelSpeed * Time.deltaTime);
+                }
+                else if (angle < -rappelAngle)
+                {
+                    Vector3 direction = Vector3.up * verticalInput;
+                    controller.Move(direction * rappelSpeed * Time.deltaTime);
+                }
+
                 //Get view angle on x rotational axis
                 //if angle is above range, "w" is up and "s" is down
                 //if angle is below range, the opposite is true
@@ -279,6 +292,7 @@ public class DungeonCameraController : MonoBehaviour
 
         void Moving()
         {
+            if (isRappelling) return;
             Vector3 forward = Vector3.Normalize(new Vector3(transform.forward.x, 0f, transform.forward.z));
             moveDirection = Vector3.Normalize(forward * verticalInput + transform.right * horizontalInput);
             if (stayCrouched) moveDirection = moveDirection * crouchModifier;
